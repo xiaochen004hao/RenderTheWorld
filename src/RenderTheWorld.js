@@ -650,7 +650,6 @@ class RenderTheWorld {
 						},
 					},
 				},
-				// 'RenderTheWorld.objectLoadingCompleted': 'When [name] object loading is completed',
 				{
 					opcode: 'objectLoadingCompleted',
 					blockType: 'hat',
@@ -1046,6 +1045,7 @@ class RenderTheWorld {
 	/**
 	 * 兼容性检查
 	 */
+	// @ts-ignore
 	isWebGLAvailable(args) {
 		this.isWebglAvailable = WebGL.isWebGLAvailable();
 	}
@@ -1053,11 +1053,13 @@ class RenderTheWorld {
 	 * 兼容性
 	 * @return {boolean}
 	 */
+	// @ts-ignore
 	_isWebGLAvailable(args) {
 		return this.isWebglAvailable;
 	}
 
 	objectLoadingCompleted({name}) {
+		// @ts-ignore
 		if (Scratch.Cast.toString(name) in this.objects) {
 			return true;
 		} else {
@@ -1126,6 +1128,7 @@ class RenderTheWorld {
 
 		let _antialias = false;
 		// 是否启动抗锯齿
+		// @ts-ignore
 		if (Scratch.Cast.toString(Anti_Aliasing) == 'enable') {
 			_antialias = true;
 		}
@@ -1134,15 +1137,19 @@ class RenderTheWorld {
 			antialias: _antialias,
 		}); // 创建渲染器
 		this.renderer.setClearColor('#000000'); // 设置渲染器背景
+		// @ts-ignore
 		this.renderer.shadowMap.enabled = true;
 		//this.renderer.setSize(this.tc.clientWidth, this.tc.clientHeight, false);
 		this.renderer.setSize(
+			// @ts-ignore
 			Scratch.Cast.toNumber(sizex),
+			// @ts-ignore
 			Scratch.Cast.toNumber(sizey),
 		);
 		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 		this.scene = new THREE.Scene(); // 创建场景
+		// @ts-ignore
 		this.scene.background = new THREE.Color(Scratch.Cast.toNumber(color)); // 设置背景颜色
 
 		// 创建摄像机
@@ -1189,9 +1196,11 @@ class RenderTheWorld {
 	 * @param {object} args
 	 * @param {string} args.state
 	 */
+	// @ts-ignore
 	set3dState({state}) {
-		if (!this.tc) { return "⚠️显示器未初始化！";}
+		if (!this.tc) { return "<span>⚠️显示器未初始化！</span>";}
 
+		// @ts-ignore
 		if (Scratch.Cast.toString(state) === 'display') {
 			this.tc.style.display = 'block';
 			this.isTcShow = true;
@@ -1201,6 +1210,7 @@ class RenderTheWorld {
 		}
 	}
 
+	// @ts-ignore
 	get3dState(args) {
 		return this.isTcShow;
 	}
@@ -1213,6 +1223,7 @@ class RenderTheWorld {
 	/**
 	 * 渲染，放在主循环里
 	 */
+	// @ts-ignore
 	render(args) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		this.renderer.render(this.scene, this.camera);
@@ -1232,14 +1243,19 @@ class RenderTheWorld {
 	 * @param {string} args.YN
 	 * @param {string} args.YN2
 	 */
+	// @ts-ignore
 	makeCube({name, a, b, h, color, x, y, z, YN, YN2}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		// 名称
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 长方体
 		let geometry = new THREE.BoxGeometry(
+			// @ts-ignore
 			Scratch.Cast.toNumber(a),
+			// @ts-ignore
 			Scratch.Cast.toNumber(b),
+			// @ts-ignore
 			Scratch.Cast.toNumber(h),
 		);
 		// let material = new THREE.MeshPhongMaterial({
@@ -1247,6 +1263,7 @@ class RenderTheWorld {
 		// });
 		// 纹理
 		let material = new THREE.MeshLambertMaterial({
+			// @ts-ignore
 			color: Scratch.Cast.toNumber(color),
 		});
 		material.fog = true;
@@ -1255,15 +1272,21 @@ class RenderTheWorld {
 		if (name in this.objects) {
 			this._deleteObject(this.objects[name]);
 		}
+		// @ts-ignore
 		this.objects[name] = new THREE.Mesh(geometry, material);
 		this.objects[name].position.set(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		);
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN) == 'true') {
 			this.objects[name].castShadow = true;
 		}
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN2) == 'true') {
 			this.objects[name].receiveShadow = true;
 		}
@@ -1292,14 +1315,19 @@ class RenderTheWorld {
 	 * @param {string} args.YN
 	 * @param {string} args.YN2
 	 */
+	// @ts-ignore
 	makeSphere({name, radius, w, h, color, x, y, z, YN, YN2}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		// 名称
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 长方体
 		let geometry = new THREE.SphereGeometry(
+			// @ts-ignore
 			Scratch.Cast.toNumber(radius),
+			// @ts-ignore
 			Scratch.Cast.toNumber(w),
+			// @ts-ignore
 			Scratch.Cast.toNumber(h),
 		);
 		// let material = new THREE.MeshPhongMaterial({
@@ -1307,6 +1335,7 @@ class RenderTheWorld {
 		// });
 		// 纹理
 		let material = new THREE.MeshLambertMaterial({
+			// @ts-ignore
 			color: Scratch.Cast.toNumber(color),
 		});
 		material.fog = true;
@@ -1315,15 +1344,21 @@ class RenderTheWorld {
 		if (name in this.objects) {
 			this._deleteObject(this.objects[name]);
 		}
+		// @ts-ignore
 		this.objects[name] = new THREE.Mesh(geometry, material);
 		this.objects[name].position.set(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		);
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN) == 'true') {
 			this.objects[name].castShadow = true;
 		}
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN2) == 'true') {
 			this.objects[name].receiveShadow = true;
 		}
@@ -1351,13 +1386,17 @@ class RenderTheWorld {
 	 * @param {string} args.YN
 	 * @param {string} args.YN2
 	 */
+	// @ts-ignore
 	makePlane({name, a, b, color, x, y, z, YN, YN2}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		// 名称
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 长方体
 		let geometry = new THREE.PlaneGeometry(
+			// @ts-ignore
 			Scratch.Cast.toNumber(a),
+			// @ts-ignore
 			Scratch.Cast.toNumber(b),
 		);
 		// let material = new THREE.MeshPhongMaterial({
@@ -1365,6 +1404,7 @@ class RenderTheWorld {
 		// });
 		// 纹理
 		let material = new THREE.MeshLambertMaterial({
+			// @ts-ignore
 			color: Scratch.Cast.toNumber(color),
 		});
 		material.fog = true;
@@ -1373,15 +1413,21 @@ class RenderTheWorld {
 		if (name in this.objects) {
 			this._deleteObject(this.objects[name]);
 		}
+		// @ts-ignore
 		this.objects[name] = new THREE.Mesh(geometry, material);
 		this.objects[name].position.set(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		);
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN) == 'true') {
 			this.objects[name].castShadow = true;
 		}
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN2) == 'true') {
 			this.objects[name].receiveShadow = true;
 		}
@@ -1408,10 +1454,13 @@ class RenderTheWorld {
 	 * @param {string} args.YN
 	 * @param {string} args.YN2
 	 */
+	// @ts-ignore
 	importOBJ({name, objfile, mtlfile, x, y, z, YN, YN2}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		if (objfile == 'fileListEmpty') { return }
 		// 名称
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 创建加载器
 		const objLoader = new OBJLoader();
@@ -1421,28 +1470,37 @@ class RenderTheWorld {
 			this._deleteObject(this.objects[name]);
 		}
 		// 加载模型
+		// @ts-ignore
 		mtlLoader.load(this.getFileURL(Scratch.Cast.toString(mtlfile)), (mtl) => {
 			mtl.preload();
 			objLoader.setMaterials(mtl);
+			// @ts-ignore
 			objLoader.load(this.getFileURL(Scratch.Cast.toString(objfile)), (root) => {
 				// console.log('--------');
 				// console.log(root);
 				// console.log('--------');
 				this.objects[name] = root;
 				// this.objects[name].position.set(Scratch.Cast.toNumber(args.x), Scratch.Cast.toNumber(args.y), Scratch.Cast.toNumber(args.z));
+				// @ts-ignore
 				this.objects[name].position.x = Scratch.Cast.toNumber(x);
+				// @ts-ignore
 				this.objects[name].position.y = Scratch.Cast.toNumber(y);
+				// @ts-ignore
 				this.objects[name].position.z = Scratch.Cast.toNumber(z);
+				// @ts-ignore
 				if (Scratch.Cast.toString(YN) == 'true') {
 					this.objects[name].castShadow = true;
 				}
+				// @ts-ignore
 				if (Scratch.Cast.toString(YN2) == 'true') {
 					this.objects[name].receiveShadow = true;
 				}
 				for (let i = 0; i < this.objects[name].children.length; i++) {
+					// @ts-ignore
 					if (Scratch.Cast.toString(YN) == 'true') {
 						this.objects[name].children[i].castShadow = true;
 					}
+					// @ts-ignore
 					if (Scratch.Cast.toString(YN2) == 'true') {
 						this.objects[name].children[i].receiveShadow = true;
 					}
@@ -1473,14 +1531,18 @@ class RenderTheWorld {
 	 * @param {string} args.YN
 	 * @param {string} args.YN2
 	 */
+	// @ts-ignore
 	importGLTF({name, gltffile, x, y, z, YN, YN2}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		if (gltffile == 'fileListEmpty') { return }
 		// console.log(args.mtlfile, args);
 		// 名称
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 创建加载器
 		const gltfLoader = new GLTFLoader();
+		// @ts-ignore
 		const url = this.getFileURL(Scratch.Cast.toString(gltffile));
 		// 添加到场景
 		// console.log(name, name in this.objects);
@@ -1491,19 +1553,26 @@ class RenderTheWorld {
 		gltfLoader.load(url, (gltf) => {
 			const root = gltf.scene;
 			this.objects[name] = root;
+			// @ts-ignore
 			this.objects[name].position.x = Scratch.Cast.toNumber(x);
+			// @ts-ignore
 			this.objects[name].position.y = Scratch.Cast.toNumber(y);
+			// @ts-ignore
 			this.objects[name].position.z = Scratch.Cast.toNumber(z);
+			// @ts-ignore
 			if (Scratch.Cast.toString(YN) == 'true') {
 				this.objects[name].castShadow = true;
 			}
+			// @ts-ignore
 			if (Scratch.Cast.toString(YN2) == 'true') {
 				this.objects[name].receiveShadow = true;
 			}
 			for (let i = 0; i < this.objects[name].children.length; i++) {
+				// @ts-ignore
 				if (Scratch.Cast.toString(YN) == 'true') {
 					this.objects[name].children[i].castShadow = true;
 				}
+				// @ts-ignore
 				if (Scratch.Cast.toString(YN2) == 'true') {
 					this.objects[name].children[i].receiveShadow = true;
 				}
@@ -1528,55 +1597,75 @@ class RenderTheWorld {
 	 * @param {object} args
 	 * @param {string} args.name
 	 */
+	// @ts-ignore
 	deleteObject({name}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
 			this._deleteObject(this.objects[name]);
 		}
 	}
 
+	// @ts-ignore
 	rotationObject({name, x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
 			// 设置旋转角度
 			this.objects[name].rotation.set(
+				// @ts-ignore
 				THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
+				// @ts-ignore
 				THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
+				// @ts-ignore
 				THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
 			);
 		} else {
+			// @ts-ignore
 			return;
 		}
 	}
 
+	// @ts-ignore
 	moveObject({name, x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
 			// 设置坐标
 			this.objects[name].position.set(
+				// @ts-ignore
 				Scratch.Cast.toNumber(x),
+				// @ts-ignore
 				Scratch.Cast.toNumber(y),
+				// @ts-ignore
 				Scratch.Cast.toNumber(z),
 			);
 		} else {
+			// @ts-ignore
 			return;
 		}
 	}
 
+	// @ts-ignore
 	scaleObject({name, x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
 			// 设置缩放
 			this.objects[name].scale.set(
+				// @ts-ignore
 				Scratch.Cast.toNumber(x),
+				// @ts-ignore
 				Scratch.Cast.toNumber(y),
+				// @ts-ignore
 				Scratch.Cast.toNumber(z),
 			);
 		} else {
+			// @ts-ignore
 			return;
 		}
 	}
@@ -1588,8 +1677,10 @@ class RenderTheWorld {
 	 * @param {string} args.xyz
 	 */
 	getObjectPos({name, xyz}) {
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
+			// @ts-ignore
 			switch (Scratch.Cast.toString(xyz)) {
 				case 'x':
 					return this.objects[name].position.x;
@@ -1609,9 +1700,12 @@ class RenderTheWorld {
 	 * @param {string} args.name
 	 * @param {string} args.xyz
 	 */
+	// @ts-ignore
 	getObjectRotation({name, xyz}) {
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
+			// @ts-ignore
 			switch (Scratch.Cast.toString(xyz)) {
 				case 'x':
 					return THREE.MathUtils.radToDeg(this.objects[name].rotation.x);
@@ -1621,6 +1715,7 @@ class RenderTheWorld {
 					return THREE.MathUtils.radToDeg(this.objects[name].rotation.z);
 			}
 		} else {
+			// @ts-ignore
 			return;
 		}
 	}
@@ -1632,8 +1727,10 @@ class RenderTheWorld {
 	 * @param {string} args.xyz
 	 */
 	getObjectScale({name, xyz}) {
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.objects) {
+			// @ts-ignore
 			switch (Scratch.Cast.toString(xyz)) {
 				case 'x':
 					return this.objects[name].scale.x;
@@ -1660,8 +1757,10 @@ class RenderTheWorld {
 	 * @param {number} args.decay
 	 * @param {string} args.YN
 	 */
+	// @ts-ignore
 	makePointLight({name, color, intensity, x, y, z, decay, YN}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		// 创建点光源
 		if (name in this.lights) {
@@ -1669,40 +1768,55 @@ class RenderTheWorld {
 			this.lights[name].dispose();
 		}
 		this.lights[name] = new THREE.PointLight(
+			// @ts-ignore
 			Scratch.Cast.toNumber(color),
+			// @ts-ignore
 			Scratch.Cast.toNumber(intensity),
 			0,
+			// @ts-ignore
 			Scratch.Cast.toNumber(decay),
 		); //创建光源
 		this.lights[name].position.set(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		); //设置光源的位置
+		// @ts-ignore
 		if (Scratch.Cast.toString(YN) == 'true') {
 			this.lights[name].castShadow = true;
 		}
 		this.scene.add(this.lights[name]); //在场景中添加光源
 	}
 
+	// @ts-ignore
 	moveLight({name, x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.lights) {
 			// 设置坐标
 			this.lights[name].position.set(
+				// @ts-ignore
 				Scratch.Cast.toNumber(x),
+				// @ts-ignore
 				Scratch.Cast.toNumber(y),
+				// @ts-ignore
 				Scratch.Cast.toNumber(z),
 			);
 		} else {
+			// @ts-ignore
 			return;
 		}
 	}
 
 	getLightPos({name, xyz}) {
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 		if (name in this.lights) {
+			// @ts-ignore
 			switch (Scratch.Cast.toString(xyz)) {
 				case 'x':
 					return this.lights[name].position.x;
@@ -1716,8 +1830,10 @@ class RenderTheWorld {
 		}
 	}
 
+	// @ts-ignore
 	deleteLight({name}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		name = Scratch.Cast.toString(name);
 
 		if (name in this.lights) {
@@ -1731,12 +1847,15 @@ class RenderTheWorld {
 	 * @param {number} args.color
 	 * @param {number} args.intensity
 	 */
+	// @ts-ignore
 	setAmbientLightColor({color, intensity}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		// 设置环境光颜色
 		this.ambient_light.color = new THREE.Color(
+			// @ts-ignore
 			Scratch.Cast.toNumber(color),
 		);
+		// @ts-ignore
 		this.ambient_light.intensity = Scratch.Cast.toNumber(intensity);
 	}
 
@@ -1747,15 +1866,19 @@ class RenderTheWorld {
 	 * @param {number} args.groundColor
 	 * @param {number} args.intensity
 	 */
+	// @ts-ignore
 	setHemisphereLightColor({skyColor, groundColor, intensity}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		// 设置环境光颜色
 		this.hemisphere_light.color = new THREE.Color(
+			// @ts-ignore
 			Scratch.Cast.toNumber(skyColor),
 		);
 		this.hemisphere_light.groundColor = new THREE.Color(
+			// @ts-ignore
 			Scratch.Cast.toNumber(groundColor),
 		);
+		// @ts-ignore
 		this.hemisphere_light.intensity = Scratch.Cast.toNumber(intensity);
 	}
 
@@ -1766,11 +1889,16 @@ class RenderTheWorld {
 	 * @param {number} args.y
 	 * @param {number} args.z
 	 */
+	// @ts-ignore
 	moveCamera({x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		this.camera.position.set(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		);
 	}
@@ -1782,11 +1910,16 @@ class RenderTheWorld {
 	 * @param {number} args.y
 	 * @param {number} args.z
 	 */
+	// @ts-ignore
 	rotationCamera({x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
+		// @ts-ignore
 		this.camera.rotation.set(
+			// @ts-ignore
 			THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
+			// @ts-ignore
 			THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
+			// @ts-ignore
 			THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
 		);
 	}
@@ -1798,11 +1931,15 @@ class RenderTheWorld {
 	 * @param {number} args.y
 	 * @param {number} args.z
 	 */
+	// @ts-ignore
 	cameraLookAt({x, y, z}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		this.camera.lookAt(
+			// @ts-ignore
 			Scratch.Cast.toNumber(x),
+			// @ts-ignore
 			Scratch.Cast.toNumber(y),
+			// @ts-ignore
 			Scratch.Cast.toNumber(z),
 		);
 	}
@@ -1814,12 +1951,16 @@ class RenderTheWorld {
 	 */
 	getCameraPos({xyz}) {
 		// console.log(this.camera);
+		// @ts-ignore
 		switch (Scratch.Cast.toString(xyz)) {
 			case 'x':
+				// @ts-ignore
 				return this.camera.position.x;
 			case 'y':
+				// @ts-ignore
 				return this.camera.position.y;
 			case 'z':
+				// @ts-ignore
 				return this.camera.position.z;
 		}
 	}
@@ -1829,13 +1970,18 @@ class RenderTheWorld {
 	 * @param {object} args
 	 * @param {string} args.xyz
 	 */
+	// @ts-ignore
 	getCameraRotation({xyz}) {
+		// @ts-ignore
 		switch (Scratch.Cast.toString(xyz)) {
 			case 'x':
+				// @ts-ignore
 				return THREE.MathUtils.radToDeg(this.camera.rotation.x);
 			case 'y':
+				// @ts-ignore
 				return THREE.MathUtils.radToDeg(this.camera.rotation.y);
 			case 'z':
+				// @ts-ignore
 				return THREE.MathUtils.radToDeg(this.camera.rotation.z);
 		}
 	}
@@ -1876,11 +2022,15 @@ class RenderTheWorld {
 	 * @param {number} args.near
 	 * @param {number} args.far
 	 */
+	// @ts-ignore
 	enableFogEffect({color, near, far}) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		this.scene.fog = new THREE.Fog(
+			// @ts-ignore
 			Scratch.Cast.toNumber(color),
+			// @ts-ignore
 			Scratch.Cast.toNumber(near),
+			// @ts-ignore
 			Scratch.Cast.toNumber(far),
 		);
 	}
@@ -1888,6 +2038,7 @@ class RenderTheWorld {
 	/**
 	 * 禁用雾效果
 	 */
+	// @ts-ignore
 	disableFogEffect(args) {
 		if (!this.tc) { return "⚠️显示器未初始化！";}
 		this.scene.fog = null;
@@ -1903,14 +2054,18 @@ class RenderTheWorld {
 	 */
 	color_({R, G, B}) {
 		return (
+			// @ts-ignore
 			Math.min(Math.max(Scratch.Cast.toNumber(R), 0), 255) * 65536 +
+			// @ts-ignore
 			Math.min(Math.max(Scratch.Cast.toNumber(G), 0), 255) * 256 +
+			// @ts-ignore
 			Math.min(Math.max(Scratch.Cast.toNumber(B), 0), 255)
 		);
 	}
 }
 
 window.tempExt = {
+	// @ts-ignore
 	Extension: RenderTheWorld,
 	info: {
 		name: 'RenderTheWorld.name',
