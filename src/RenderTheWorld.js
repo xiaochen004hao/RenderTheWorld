@@ -13,8 +13,6 @@ import { GLTFLoader } from "./GLTFLoader.js";
 import WebGL from "./WebGL.js";
 import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/index.js";
 
-// console.log(THREE);
-
 const chen_RenderTheWorld_extensionId = "RenderTheWorld";
 
 /** @typedef {string|number|boolean} SCarg 来自Scratch圆形框的参数，虽然这个框可能只能输入数字，但是可以放入变量，因此有可能获得数字、布尔和文本（极端情况下还有 null 或 undefined，需要同时处理 */
@@ -37,7 +35,8 @@ Scratch.translate.setup({
         "RenderTheWorld.tools": "🛠️工具",
         "RenderTheWorld.YN.true": "能",
         "RenderTheWorld.YN.false": "不能",
-        "RenderTheWorld.controlCamera": "鼠标控制相机：[yn1]右键拖拽 [yn2]中键缩放 [yn3]左键旋转",
+        "RenderTheWorld.YN2.yes": "有",
+        "RenderTheWorld.YN2.no": "没有",
         "RenderTheWorld.isWebGLAvailable": "兼容性检查",
         "RenderTheWorld._isWebGLAvailable": "当前设备支持WebGL吗?",
 
@@ -69,9 +68,10 @@ Scratch.translate.setup({
         "RenderTheWorld.xyz.z": "z轴",
 
         "RenderTheWorld.lights": "🕯️光照",
-        "RenderTheWorld.setAmbientLightColor": "设置环境光颜色: [color] 光照强度：[intensity]",
-        "RenderTheWorld.setHemisphereLightColor": "设置半球光天空颜色: [skyColor] 地面颜色: [groundColor] 光照强度：[intensity]",
+        "RenderTheWorld.setAmbientLightColor": "设置环境光颜色: [color] 光照强度: [intensity]",
+        "RenderTheWorld.setHemisphereLightColor": "设置半球光天空颜色: [skyColor] 地面颜色: [groundColor] 光照强度: [intensity]",
         "RenderTheWorld.makePointLight": "创建或重置点光源: [name] 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 衰减量[decay] [YN]投射阴影",
+        "RenderTheWorld.setLightMapSize": "设置光源: [name] 的阴影纹理分辨率为: x[xsize] y[ysize]",
         "RenderTheWorld.moveLight": "将光源: [name] 移动到: x[x] y[y] z[z]",
         "RenderTheWorld.getLightPos": "获取光源: [name] 的[xyz]坐标",
         "RenderTheWorld.deleteLight": "删除光源: [name]",
@@ -82,9 +82,14 @@ Scratch.translate.setup({
         "RenderTheWorld.cameraLookAt": "让相机面向: x[x] y[y] z[z]",
         "RenderTheWorld.getCameraPos": "获取相机[xyz]坐标",
         "RenderTheWorld.getCameraRotation": "获取相机[xyz]的旋转角度",
+        "RenderTheWorld.setControlState": "鼠标[YN]控制相机",
+        "RenderTheWorld.mouseCanControlCamera": "鼠标能控制相机吗?",
+        "RenderTheWorld.controlCamera": "鼠标控制相机: [yn1]右键拖拽 [yn2]中键缩放 [yn3]左键旋转",
+        "RenderTheWorld.setControlCameraDamping": "鼠标控制相机: [YN2] 惯性",
+        "RenderTheWorld.setControlCameraDampingNum": "设置鼠标控制相机的惯性系数[num]",
 
         "RenderTheWorld.fogs": "🌫️雾",
-        "RenderTheWorld.enableFogEffect": "启用雾效果并设置雾颜色为：[color] near[near] far[far]",
+        "RenderTheWorld.enableFogEffect": "启用雾效果并设置雾颜色为: [color] near[near] far[far]",
         "RenderTheWorld.disableFogEffect": "禁用雾效果",
     },
     en: {
@@ -104,7 +109,8 @@ Scratch.translate.setup({
         "RenderTheWorld.tools": "🛠️Tools",
         "RenderTheWorld.YN.true": "can",
         "RenderTheWorld.YN.false": "can't",
-        "RenderTheWorld.controlCamera": "Mouse control camera: [yn1]right click drag [yn2] middle click zoom and [yn3] left click rotation",
+        "RenderTheWorld.YN2.yes": "yes",
+        "RenderTheWorld.YN2.no": "no",
         "RenderTheWorld.isWebGLAvailable": "compatibility check",
         "RenderTheWorld._isWebGLAvailable": "Does the current device support WebGL?",
 
@@ -139,6 +145,7 @@ Scratch.translate.setup({
         "RenderTheWorld.setAmbientLightColor": "set AmbientLight's color: [color] intensity: [intensity]",
         "RenderTheWorld.setHemisphereLightColor": "set HemisphereLight's skyColor: [skyColor] groundColor: [groundColor] intensity: [intensity]",
         "RenderTheWorld.makePointLight": "reset or make a PointLight: [name] color: [color] intensity: [intensity] position: x[x] y[y] z[z] decay[decay] [YN]cast shadows",
+        "RenderTheWorld.setLightMapSize": "set Light: [name]'s shadow texture resolution x[xsize] y[ysize]",
         "RenderTheWorld.moveLight": "Light: [name] go to: x[x] y[y] z[z]",
         "RenderTheWorld.getLightPos": "get Light: [name]'s [xyz] pos",
         "RenderTheWorld.deleteLight": "delete ligth: [name]",
@@ -149,6 +156,11 @@ Scratch.translate.setup({
         "RenderTheWorld.cameraLookAt": "Face the camera towards: x[x] y[y] z[z]",
         "RenderTheWorld.getCameraPos": "get camera's [xyz] pos",
         "RenderTheWorld.getCameraRotation": "get camera's  [xyz] rotation",
+        "RenderTheWorld.setControlState": "Mouse [YN] control camera",
+        "RenderTheWorld.mouseCanControlCamera": "Mouse can control camera?",
+        "RenderTheWorld.controlCamera": "Mouse control camera: [yn1]right click drag [yn2] middle click zoom and [yn3] left click rotation",
+        "RenderTheWorld.setControlCameraDamping": "Mouse control camera: [YN2] Damping",
+        "RenderTheWorld.setControlCameraDampingNum": "set the damping coefficient of mouse controlled camera [num]",
 
         "RenderTheWorld.fogs": "🌫️Fog",
         "RenderTheWorld.enableFogEffect": "Enable fog effect and set fog color to: [color] near[near] far[far]",
@@ -159,7 +171,6 @@ Scratch.translate.setup({
 class RenderTheWorld {
     constructor(runtime) {
         this.runtime = runtime;
-        // console.log(this.runtime);
         const _draw = this.runtime.renderer.draw;
         const _resize = this.runtime.renderer.resize;
         this.runtime.renderer.resize = (pixelsWide, pixelsTall) => {
@@ -179,14 +190,6 @@ class RenderTheWorld {
             }
         };
         this.dirty = false;
-
-        // 在项目结束时，恢复原生的渲染器的resize和draw方法
-        // this.runtime.on('PROJECT_STOP_ALL', () => {
-        // 	this.runtime.renderer.resize = this.__resize;
-        // 	this.runtime.renderer.draw = this.__draw;
-        // });
-
-        // console.log(this.runtime);
 
         // 兼容性
         this.isWebglAvailable = false;
@@ -303,26 +306,6 @@ class RenderTheWorld {
                 {
                     blockType: "label",
                     text: this.formatMessage("RenderTheWorld.tools"),
-                },
-                {
-                    opcode: "controlCamera",
-                    blockType: "command",
-                    text: this.formatMessage("RenderTheWorld.controlCamera"),
-                    hideFromPalette: !0,
-                    arguments: {
-                        yn1: {
-                            type: "string",
-                            menu: "YN",
-                        },
-                        yn2: {
-                            type: "string",
-                            menu: "YN",
-                        },
-                        yn3: {
-                            type: "string",
-                            menu: "YN",
-                        },
-                    },
                 },
                 {
                     opcode: "color_",
@@ -844,6 +827,25 @@ class RenderTheWorld {
                     },
                 },"---",
                 {
+                    opcode: "setLightMapSize",
+                    blockType: "command",
+                    text: this.formatMessage("RenderTheWorld.setLightMapSize"),
+                    arguments: {
+                        name: {
+                            type: "string",
+                            defaultValue: "name",
+                        },
+                        xsize: {
+                            type: "number",
+                            defaultValue: 512,
+                        },
+                        ysize: {
+                            type: "number",
+                            defaultValue: 512,
+                        },
+                    },
+                },
+                {
                     opcode: "moveLight",
                     blockType: "command",
                     text: this.formatMessage("RenderTheWorld.moveLight"),
@@ -976,6 +978,65 @@ class RenderTheWorld {
                         },
                     },
                     disableMonitor: true,
+                },"---",
+                {
+                    opcode: "setControlState",
+                    blockType: "command",
+                    text: this.formatMessage("RenderTheWorld.setControlState"),
+                    hideFromPalette: false,
+                    arguments: {
+                        YN: {
+                            type: "string",
+                            menu: "YN",
+                        },
+                    },
+                },
+                {
+                    opcode: "mouseCanControlCamera",
+                    blockType: "Boolean",
+                    text: this.formatMessage("RenderTheWorld.mouseCanControlCamera"),
+                },
+                {
+                    opcode: "controlCamera",
+                    blockType: "command",
+                    text: this.formatMessage("RenderTheWorld.controlCamera"),
+                    hideFromPalette: false,
+                    arguments: {
+                        yn1: {
+                            type: "string",
+                            menu: "YN",
+                        },
+                        yn2: {
+                            type: "string",
+                            menu: "YN",
+                        },
+                        yn3: {
+                            type: "string",
+                            menu: "YN",
+                        },
+                    },
+                },
+                {
+                    opcode: "setControlCameraDamping",
+                    blockType: "command",
+                    text: this.formatMessage("RenderTheWorld.setControlCameraDamping"),
+                    arguments: {
+                        YN2: {
+                            type: "string",
+                            menu: "YN2",
+                        },
+                    },
+                },
+                {
+                    opcode: "setControlCameraDampingNum",
+                    blockType: "command",
+                    text: this.formatMessage("RenderTheWorld.setControlCameraDampingNum"),
+                    arguments: {
+                        num: {
+                            type: "number",
+                            defaultValue: 0.05,
+                        },
+                    },
                 },
                 {
                     blockType: "label",
@@ -1053,6 +1114,19 @@ class RenderTheWorld {
                         },
                     ],
                 },
+                YN2: {
+                    acceptReporters: false,
+                    items: [
+                        {
+                            text: this.formatMessage("RenderTheWorld.YN2.yes"),
+                            value: "yes",
+                        },
+                        {
+                            text: this.formatMessage("RenderTheWorld.YN2.no"),
+                            value: "no",
+                        },
+                    ],
+                },
                 "3dState": {
                     acceptReporters: false,
                     items: [
@@ -1087,7 +1161,6 @@ class RenderTheWorld {
 	 * @param {string} filename
 	 */
     getFileURL(filename) {
-        // console.log(this.runtime.getGandiAssetContent(filename));
         return this.runtime.getGandiAssetContent(filename).encodeDataURI();
     }
 
@@ -1104,7 +1177,7 @@ class RenderTheWorld {
 	 * @param {object} args
 	 */
 	// @ts-ignore
-    isWebGLAvailable(args) {
+    isWebGLAvailable({}) {
         this.isWebglAvailable = WebGL.isWebGLAvailable();
     }
     /**
@@ -1113,7 +1186,7 @@ class RenderTheWorld {
      * @return {boolean}
      */
     // @ts-ignore
-    _isWebGLAvailable(args) {
+    _isWebGLAvailable({}) {
         return this.isWebglAvailable;
     }
 
@@ -1148,9 +1221,6 @@ class RenderTheWorld {
             });
         }
 
-        // console.log('===========================');
-        // console.log(model);
-        // console.log('===========================');
         this.scene.remove(model);
     }
 
@@ -1240,11 +1310,15 @@ class RenderTheWorld {
         // 透视投影相机
         this.camera = new THREE.PerspectiveCamera(this.fov, this.aspect, this.near, this.far);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enabled = false;
+        this.controls.enableDamping = false;
         this.controls.enablePan = false; //禁止右键拖拽
         this.controls.enableZoom = false; //禁止缩放
         this.controls.enableRotate = false; //禁止旋转
+        // this.controls.addEventListener('change', function () {
+        //     this.renderer.render(this.scene, this.camera);
+        // });
         this.controls.update();
-        this.controls.addEventListener("change", this.render);
 
         // 创建环境光
         this.ambient_light = new THREE.AmbientLight(0x000000);
@@ -1253,11 +1327,6 @@ class RenderTheWorld {
         // 创建半球光
         this.hemisphere_light = new THREE.HemisphereLight(0x000000, 0x000000);
         this.scene.add(this.hemisphere_light);
-
-        // console.log(THREE);
-        // console.log(this.renderer);
-        // console.log(this.scene);
-        // console.log(this.camera);
 
         this.tc.style.width = this.scratchCanvas.style.width;
         this.tc.style.height = this.scratchCanvas.style.height;
@@ -1306,6 +1375,10 @@ class RenderTheWorld {
         }
         this._clock = this.clock.getDelta();
         this.renderer.render(this.scene, this.camera);
+
+        if (this.controls.enableDamping) {
+            this.controls.update();
+        }
     }
 
     /**
@@ -1549,9 +1622,6 @@ class RenderTheWorld {
             objLoader.setMaterials(mtl);
             // @ts-ignore
             objLoader.load(this.getFileURL(Scratch.Cast.toString(objfile)), (root) => {
-                // console.log('--------');
-                // console.log(root);
-                // console.log('--------');
                 this.objects[name] = root;
                 // this.objects[name].position.set(Scratch.Cast.toNumber(args.x), Scratch.Cast.toNumber(args.y), Scratch.Cast.toNumber(args.z));
                 // @ts-ignore
@@ -1563,22 +1633,21 @@ class RenderTheWorld {
                 // @ts-ignore
                 if (Scratch.Cast.toString(YN) == "true") {
                     this.objects[name].castShadow = true;
+                    this.objects[name].traverse(function(node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                        }
+                    });
                 }
                 // @ts-ignore
                 if (Scratch.Cast.toString(YN2) == "true") {
                     this.objects[name].receiveShadow = true;
+                    this.objects[name].traverse(function(node) {
+                        if (node.isMesh) {
+                            node.receiveShadow = true;
+                        }
+                    });
                 }
-                for (let i = 0; i < this.objects[name].children.length; i++) {
-                    // @ts-ignore
-                    if (Scratch.Cast.toString(YN) == "true") {
-                        this.objects[name].children[i].castShadow = true;
-                    }
-                    // @ts-ignore
-                    if (Scratch.Cast.toString(YN2) == "true") {
-                        this.objects[name].children[i].receiveShadow = true;
-                    }
-                }
-                // console.log(this.objects[name]);
                 this.runtime.startHatsWithParams(chen_RenderTheWorld_extensionId + "_objectLoadingCompleted", {
                     parameters: {
                         name: name,
@@ -1611,7 +1680,6 @@ class RenderTheWorld {
             // @ts-ignore
             return;
         }
-        // console.log(args.mtlfile, args);
         // 名称
         // @ts-ignore
         name = Scratch.Cast.toString(name);
@@ -1620,11 +1688,11 @@ class RenderTheWorld {
         // @ts-ignore
         const url = this.getFileURL(Scratch.Cast.toString(gltffile));
         // 添加到场景
-        // console.log(name, name in this.objects);
         this.releaseDuplicates(name);
         // 加载模型
         gltfLoader.load(url, (gltf) => {
             const root = gltf.scene;
+            console.log(gltf);
 
             // 保存动画数据
             let mixer = new THREE.AnimationMixer(root);
@@ -1645,20 +1713,20 @@ class RenderTheWorld {
             // @ts-ignore
             if (Scratch.Cast.toString(YN) == "true") {
                 this.objects[name].castShadow = true;
+                this.objects[name].traverse(function(node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                    }
+                });
             }
             // @ts-ignore
             if (Scratch.Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
-            }
-            for (let i = 0; i < this.objects[name].children.length; i++) {
-                // @ts-ignore
-                if (Scratch.Cast.toString(YN) == "true") {
-                    this.objects[name].children[i].castShadow = true;
-                }
-                // @ts-ignore
-                if (Scratch.Cast.toString(YN2) == "true") {
-                    this.objects[name].children[i].receiveShadow = true;
-                }
+                this.objects[name].traverse(function(node) {
+                    if (node.isMesh) {
+                        node.receiveShadow = true;
+                    }
+                });
             }
             this.runtime.startHatsWithParams(chen_RenderTheWorld_extensionId + "_objectLoadingCompleted", {
                 parameters: {
@@ -1666,7 +1734,6 @@ class RenderTheWorld {
                 },
             });
             this.scene.add(this.objects[name]);
-            // console.log(this.objects[name], this.scene);
         });
     }
 
@@ -1973,6 +2040,20 @@ class RenderTheWorld {
         this.scene.add(this.lights[name]); //在场景中添加光源
     }
 
+    setLightMapSize({ name, xsize, ysize }) {
+        if (!this.tc) {
+            return "⚠️显示器未初始化！";
+        }
+        // @ts-ignore
+        name = Scratch.Cast.toString(name);
+        if (name in this.lights) {
+            // @ts-ignore
+            this.lights[name].shadow.mapSize.width = Scratch.Cast.toNumber(xsize);
+            // @ts-ignore
+            this.lights[name].shadow.mapSize.height = Scratch.Cast.toNumber(ysize);
+        }
+    }
+
     // @ts-ignore
     moveLight({ name, x, y, z }) {
         if (!this.tc) {
@@ -2084,15 +2165,17 @@ class RenderTheWorld {
         if (!this.tc) {
             return "⚠️显示器未初始化！";
         }
-        // @ts-ignore
-        this.camera.position.set(
+        if (!this.controls.enabled) {
             // @ts-ignore
-            Scratch.Cast.toNumber(x),
-            // @ts-ignore
-            Scratch.Cast.toNumber(y),
-            // @ts-ignore
-            Scratch.Cast.toNumber(z),
-        );
+            this.camera.position.set(
+                // @ts-ignore
+                Scratch.Cast.toNumber(x),
+                // @ts-ignore
+                Scratch.Cast.toNumber(y),
+                // @ts-ignore
+                Scratch.Cast.toNumber(z),
+            );
+        }
     }
 
     /**
@@ -2107,15 +2190,17 @@ class RenderTheWorld {
         if (!this.tc) {
             return "⚠️显示器未初始化！";
         }
-        // @ts-ignore
-        this.camera.rotation.set(
+        if (!this.controls.enabled) {
             // @ts-ignore
-            THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
-            // @ts-ignore
-            THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
-            // @ts-ignore
-            THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
-        );
+            this.camera.rotation.set(
+                // @ts-ignore
+                THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
+                // @ts-ignore
+                THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
+                // @ts-ignore
+                THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
+            );
+        }
     }
 
     /**
@@ -2130,14 +2215,16 @@ class RenderTheWorld {
         if (!this.tc) {
             return "⚠️显示器未初始化！";
         }
-        this.camera.lookAt(
-            // @ts-ignore
-            Scratch.Cast.toNumber(x),
-            // @ts-ignore
-            Scratch.Cast.toNumber(y),
-            // @ts-ignore
-            Scratch.Cast.toNumber(z),
-        );
+        if (!this.controls.enabled) {
+            this.camera.lookAt(
+                // @ts-ignore
+                Scratch.Cast.toNumber(x),
+                // @ts-ignore
+                Scratch.Cast.toNumber(y),
+                // @ts-ignore
+                Scratch.Cast.toNumber(z),
+            );
+        }
     }
 
     /**
@@ -2149,7 +2236,6 @@ class RenderTheWorld {
         if (!this.camera) {
             return;
         }
-        // console.log(this.camera);
         // @ts-ignore
         switch (Scratch.Cast.toString(xyz)) {
             case "x":
@@ -2196,7 +2282,11 @@ class RenderTheWorld {
      * @param {string} args.yn2
      * @param {string} args.yn3
      */
+    // @ts-ignore
     controlCamera({ yn1, yn2, yn3 }) {
+        if (!this.tc) {
+            return "⚠️显示器未初始化！";
+        }
         let enablePan = false;
         let enableZoom = false;
         let enableRotate = false;
@@ -2209,13 +2299,64 @@ class RenderTheWorld {
         if (yn3 == "true") {
             enableRotate = true;
         }
-        // console.log(enablePan);
-        // console.log(enableZoom);
-        // console.log(enableRotate);
 
         this.controls.enablePan = enablePan;
         this.controls.enableZoom = enableZoom;
         this.controls.enableRotate = enableRotate;
+        this.controls.update();
+    }
+
+    // @ts-ignore
+    setControlState({ YN }) {
+        if (!this.tc) {
+            return "⚠️显示器未初始化！";
+        }
+        // @ts-ignore
+        if (Scratch.Cast.toString(YN) == "true") {
+            this.controls.enabled = true;
+        } else {
+            this.controls.enabled = false;
+        }
+        this.controls.update();
+    }
+
+    mouseCanControlCamera({}) {
+        if (!this.tc) {
+            return false;
+        }
+        return this.controls.enabled;
+    }
+
+    /**
+     * 启用/禁用鼠标控制相机惯性
+     * @param {object} args
+     * @param {string} args.YN2
+     */
+    // @ts-ignore
+    setControlCameraDamping({ YN2 }) {
+        if (!this.tc) {
+            return "⚠️显示器未初始化！";
+        }
+        // @ts-ignore
+        if (Scratch.Cast.toString(YN2) == "yes") {
+            this.controls.enableDamping = true;
+        } else {
+            this.controls.enableDamping = false;
+        }
+    }
+
+    /**
+     * 获取鼠标控制相机惯性状态
+     * @param {object} args
+     * @param {number} args.num
+     */
+    // @ts-ignore
+    setControlCameraDampingNum({ num }) {
+        if (!this.tc) {
+            return "⚠️显示器未初始化！";
+        }
+        // @ts-ignore
+        this.controls.dampingFactor = Scratch.Cast.toNumber(num);
     }
 
     /**
