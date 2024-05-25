@@ -1,26 +1,24 @@
+// @ts-nocheck
 // 依赖库
 import * as THREE from "./three.js";
 
-// 插件
-// 这里为该扩展目录下的三个js文件
 import { OBJLoader } from "./OBJLoader.js";
 import { OrbitControls } from "./OrbitControls.js";
 import { MTLLoader } from "./MTLLoader.js";
 import { GLTFLoader } from "./GLTFLoader.js";
-// import {OBJLoader} from 'https://cdn.jsdelivr.net/gh/MoreBugOfDog/cdn-file@TBS/file/OBJLoader.js';
-// import {OrbitControls} from 'https://cdn.jsdelivr.net/gh/MoreBugOfDog/cdn-file@TBS/file/OrbitControls.js';
-// import {MTLLoader} from 'https://cdn.jsdelivr.net/gh/MoreBugOfDog/cdn-file@TBS/file/MTLLoader.js';
 import WebGL from "./WebGL.js";
 import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/index.js";
 
 (function (Scratch) {
     "use strict";
+    
+    const {ArgumentType, BlockType, TargetType, Cast, translate, extensions, runtime} = Scratch;
 
     const chen_RenderTheWorld_extensionId = "RenderTheWorld";
 
     /** @typedef {string|number|boolean} SCarg 来自Scratch圆形框的参数，虽然这个框可能只能输入数字，但是可以放入变量，因此有可能获得数字、布尔和文本（极端情况下还有 null 或 undefined，需要同时处理 */
     /** 放在外面来装逼 */
-    Scratch.translate.setup({
+    translate.setup({
         "zh-cn": {
             "RenderTheWorld.name": "渲染世界",
             "RenderTheWorld.fileListEmpty": "没有文件",
@@ -172,8 +170,8 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
     });
 
     class RenderTheWorld {
-        constructor(runtime) {
-            this.runtime = runtime;
+        constructor(_runtime) {
+            this.runtime = _runtime;
 
             // 兼容性
             this.isWebglAvailable = false;
@@ -220,7 +218,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @return {string}
          */
         formatMessage(id) {
-            return Scratch.translate({
+            return translate({
                 id,
                 default: id,
                 description: id,
@@ -239,13 +237,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                 color3: "#4A76FF",
                 blocks: [
                     {
-                        blockType: "button",
+                        blockType: BlockType.BUTTON,
                         text: this.formatMessage("RenderTheWorld.apidocs"),
                         onClick: this.docs,
                     },
                     {
                         opcode: "init",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.init"),
                         arguments: {
                             color: {
@@ -268,7 +266,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "set3dState",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.set3dState"),
                         arguments: {
                             state: {
@@ -279,21 +277,21 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "get3dState",
-                        blockType: "Boolean",
+                        blockType: BlockType.BOOLEAN,
                         text: this.formatMessage("RenderTheWorld.get3dState"),
                     },
                     {
                         opcode: "render",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.render"),
                     },
                     {
-                        blockType: "label",
+                        blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.tools"),
                     },
                     {
                         opcode: "color_",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.color_"),
                         arguments: {
                             R: {
@@ -312,21 +310,21 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "isWebGLAvailable",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.isWebGLAvailable"),
                     },
                     {
                         opcode: "_isWebGLAvailable",
-                        blockType: "Boolean",
+                        blockType: BlockType.BOOLEAN,
                         text: this.formatMessage("RenderTheWorld._isWebGLAvailable"),
                     },
                     {
-                        blockType: "label",
+                        blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.objects"),
                     },
                     {
                         opcode: "makeCube",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.makeCube"),
                         arguments: {
                             name: {
@@ -372,7 +370,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "makeSphere",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.makeSphere"),
                         arguments: {
                             name: {
@@ -418,7 +416,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "makePlane",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.makePlane"),
                         arguments: {
                             name: {
@@ -460,7 +458,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "importOBJ",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.importOBJ"),
                         arguments: {
                             name: {
@@ -499,7 +497,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "importGLTF",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.importGLTF"),
                         arguments: {
                             name: {
@@ -534,7 +532,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "deleteObject",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.deleteObject"),
                         arguments: {
                             name: {
@@ -545,7 +543,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "rotationObject",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.rotationObject"),
                         arguments: {
                             name: {
@@ -568,7 +566,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "moveObject",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.moveObject"),
                         arguments: {
                             name: {
@@ -591,7 +589,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "scaleObject",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.scaleObject"),
                         arguments: {
                             name: {
@@ -614,7 +612,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getObjectPos",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getObjectPos"),
                         arguments: {
                             name: {
@@ -629,7 +627,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getObjectRotation",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getObjectRotation"),
                         arguments: {
                             name: {
@@ -644,7 +642,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getObjectScale",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getObjectScale"),
                         arguments: {
                             name: {
@@ -659,7 +657,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "playAnimation",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.playAnimation"),
                         arguments: {
                             name: {
@@ -674,7 +672,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "stopAnimation",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.stopAnimation"),
                         arguments: {
                             name: {
@@ -689,7 +687,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "updateAnimation2",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.updateAnimation2"),
                         arguments: {
                             name: {
@@ -700,7 +698,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "updateAnimation",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.updateAnimation"),
                         arguments: {
                             name: {
@@ -715,7 +713,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getAnimation",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getAnimation"),
                         arguments: {
                             name: {
@@ -727,7 +725,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "objectLoadingCompleted",
-                        blockType: "hat",
+                        blockType: BlockType.HAT,
                         text: this.formatMessage("RenderTheWorld.objectLoadingCompleted"),
                         shouldRestartExistingThreads: false,
                         arguments: {
@@ -738,12 +736,12 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                         },
                     },
                     {
-                        blockType: "label",
+                        blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.lights"),
                     },
                     {
                         opcode: "makePointLight",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.makePointLight"),
                         arguments: {
                             name: {
@@ -781,7 +779,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "setAmbientLightColor",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setAmbientLightColor"),
                         arguments: {
                             color: {
@@ -795,7 +793,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "setHemisphereLightColor",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setHemisphereLightColor"),
                         arguments: {
                             skyColor: {
@@ -812,7 +810,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "setLightMapSize",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setLightMapSize"),
                         arguments: {
                             name: {
@@ -831,7 +829,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "moveLight",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.moveLight"),
                         arguments: {
                             name: {
@@ -854,7 +852,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getLightPos",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getLightPos"),
                         arguments: {
                             name: {
@@ -869,7 +867,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "deleteLight",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.deleteLight"),
                         arguments: {
                             name: {
@@ -879,12 +877,12 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                         },
                     },
                     {
-                        blockType: "label",
+                        blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.camera"),
                     },
                     {
                         opcode: "moveCamera",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.moveCamera"),
                         arguments: {
                             x: {
@@ -903,7 +901,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "rotationCamera",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.rotationCamera"),
                         arguments: {
                             x: {
@@ -922,7 +920,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "cameraLookAt",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.cameraLookAt"),
                         arguments: {
                             x: {
@@ -941,7 +939,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "getCameraPos",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getCameraPos"),
                         arguments: {
                             xyz: {
@@ -953,7 +951,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "getCameraRotation",
-                        blockType: "reporter",
+                        blockType: BlockType.REPORTER,
                         text: this.formatMessage("RenderTheWorld.getCameraRotation"),
                         arguments: {
                             xyz: {
@@ -965,7 +963,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },"---",
                     {
                         opcode: "setControlState",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setControlState"),
                         hideFromPalette: false,
                         arguments: {
@@ -977,12 +975,12 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "mouseCanControlCamera",
-                        blockType: "Boolean",
+                        blockType: BlockType.BOOLEAN,
                         text: this.formatMessage("RenderTheWorld.mouseCanControlCamera"),
                     },
                     {
                         opcode: "controlCamera",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.controlCamera"),
                         hideFromPalette: false,
                         arguments: {
@@ -1002,7 +1000,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "setControlCameraDamping",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setControlCameraDamping"),
                         arguments: {
                             YN2: {
@@ -1013,7 +1011,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "setControlCameraDampingNum",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.setControlCameraDampingNum"),
                         arguments: {
                             num: {
@@ -1023,12 +1021,12 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                         },
                     },
                     {
-                        blockType: "label",
+                        blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.fogs"),
                     },
                     {
                         opcode: "enableFogEffect",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.enableFogEffect"),
                         arguments: {
                             color: {
@@ -1046,7 +1044,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                     {
                         opcode: "disableFogEffect",
-                        blockType: "command",
+                        blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.disableFogEffect"),
                     },
                 ],
@@ -1160,7 +1158,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * 兼容性检查
          * @param {object} args
          */
-        // @ts-ignore
+        
         isWebGLAvailable({}) {
             this.isWebglAvailable = WebGL.isWebGLAvailable();
         }
@@ -1169,14 +1167,14 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @return {boolean}
          */
-        // @ts-ignore
+        
         _isWebGLAvailable({}) {
             return this.isWebglAvailable;
         }
 
         objectLoadingCompleted({ name }) {
-            // @ts-ignore
-            if (Scratch.Cast.toString(name) in this.objects) {
+            
+            if (Cast.toString(name) in this.objects) {
                 return true;
             } else {
                 return false;
@@ -1285,8 +1283,8 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
 
             let _antialias = false;
             // 是否启动抗锯齿
-            // @ts-ignore
-            if (Scratch.Cast.toString(Anti_Aliasing) == "enable") {
+            
+            if (Cast.toString(Anti_Aliasing) == "enable") {
                 _antialias = true;
             }
             this.renderer = new THREE.WebGLRenderer({
@@ -1294,20 +1292,20 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                 antialias: _antialias,
             }); // 创建渲染器
             this.renderer.setClearColor("#000000"); // 设置渲染器背景
-            // @ts-ignore
+            
             this.renderer.shadowMap.enabled = true;
             //this.renderer.setSize(this.tc.clientWidth, this.tc.clientHeight, false);
             this.renderer.setSize(
-                // @ts-ignore
-                Scratch.Cast.toNumber(sizex),
-                // @ts-ignore
-                Scratch.Cast.toNumber(sizey),
+                
+                Cast.toNumber(sizex),
+                
+                Cast.toNumber(sizey),
             );
             this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
             this.scene = new THREE.Scene(); // 创建场景
-            // @ts-ignore
-            this.scene.background = new THREE.Color(Scratch.Cast.toNumber(color)); // 设置背景颜色
+            
+            this.scene.background = new THREE.Color(Cast.toNumber(color)); // 设置背景颜色
 
             // 创建摄像机
             this.fov = 40; // 视野范围
@@ -1347,14 +1345,14 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {string} args.state
          */
-        // @ts-ignore
+        
         set3dState({ state }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
 
-            // @ts-ignore
-            if (Scratch.Cast.toString(state) === "display") {
+            
+            if (Cast.toString(state) === "display") {
                 this.tc.style.display = "block";
                 this.isTcShow = true;
             } else {
@@ -1363,7 +1361,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             }
         }
 
-        // @ts-ignore
+        
         get3dState(args) {
             return this.isTcShow;
         }
@@ -1376,7 +1374,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
         /**
          * 渲染，放在主循环里
          */
-        // @ts-ignore
+        
         render(args) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
@@ -1403,51 +1401,51 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.YN
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         makeCube({ name, a, b, h, color, x, y, z, YN, YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             // 名称
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 长方体
             let geometry = new THREE.BoxGeometry(
-                // @ts-ignore
-                Scratch.Cast.toNumber(a),
-                // @ts-ignore
-                Scratch.Cast.toNumber(b),
-                // @ts-ignore
-                Scratch.Cast.toNumber(h),
+                
+                Cast.toNumber(a),
+                
+                Cast.toNumber(b),
+                
+                Cast.toNumber(h),
             );
             // let material = new THREE.MeshPhongMaterial({
-            //     color: Scratch.Cast.toNumber(args.color),
+            //     color: Cast.toNumber(args.color),
             // });
             // 纹理
             let material = new THREE.MeshLambertMaterial({
-                // @ts-ignore
-                color: Scratch.Cast.toNumber(color),
+                
+                color: Cast.toNumber(color),
             });
             material.fog = true;
 
             // 添加到场景
             this.releaseDuplicates(name);
-            // @ts-ignore
+            
             this.objects[name] = new THREE.Mesh(geometry, material);
             this.objects[name].position.set(
-                // @ts-ignore
-                Scratch.Cast.toNumber(x),
-                // @ts-ignore
-                Scratch.Cast.toNumber(y),
-                // @ts-ignore
-                Scratch.Cast.toNumber(z),
+                
+                Cast.toNumber(x),
+                
+                Cast.toNumber(y),
+                
+                Cast.toNumber(z),
             );
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN) == "true") {
+            
+            if (Cast.toString(YN) == "true") {
                 this.objects[name].castShadow = true;
             }
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN2) == "true") {
+            
+            if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
             this.runtime.startHatsWithParams(chen_RenderTheWorld_extensionId + "_objectLoadingCompleted", {
@@ -1472,51 +1470,51 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.YN
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         makeSphere({ name, radius, w, h, color, x, y, z, YN, YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             // 名称
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 长方体
             let geometry = new THREE.SphereGeometry(
-                // @ts-ignore
-                Scratch.Cast.toNumber(radius),
-                // @ts-ignore
-                Scratch.Cast.toNumber(w),
-                // @ts-ignore
-                Scratch.Cast.toNumber(h),
+                
+                Cast.toNumber(radius),
+                
+                Cast.toNumber(w),
+                
+                Cast.toNumber(h),
             );
             // let material = new THREE.MeshPhongMaterial({
-            //     color: Scratch.Cast.toNumber(args.color),
+            //     color: Cast.toNumber(args.color),
             // });
             // 纹理
             let material = new THREE.MeshLambertMaterial({
-                // @ts-ignore
-                color: Scratch.Cast.toNumber(color),
+                
+                color: Cast.toNumber(color),
             });
             material.fog = true;
 
             // 添加到场景
             this.releaseDuplicates(name);
-            // @ts-ignore
+            
             this.objects[name] = new THREE.Mesh(geometry, material);
             this.objects[name].position.set(
-                // @ts-ignore
-                Scratch.Cast.toNumber(x),
-                // @ts-ignore
-                Scratch.Cast.toNumber(y),
-                // @ts-ignore
-                Scratch.Cast.toNumber(z),
+                
+                Cast.toNumber(x),
+                
+                Cast.toNumber(y),
+                
+                Cast.toNumber(z),
             );
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN) == "true") {
+            
+            if (Cast.toString(YN) == "true") {
                 this.objects[name].castShadow = true;
             }
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN2) == "true") {
+            
+            if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
             this.runtime.startHatsWithParams(chen_RenderTheWorld_extensionId + "_objectLoadingCompleted", {
@@ -1540,49 +1538,49 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.YN
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         makePlane({ name, a, b, color, x, y, z, YN, YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             // 名称
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 长方体
             let geometry = new THREE.PlaneGeometry(
-                // @ts-ignore
-                Scratch.Cast.toNumber(a),
-                // @ts-ignore
-                Scratch.Cast.toNumber(b),
+                
+                Cast.toNumber(a),
+                
+                Cast.toNumber(b),
             );
             // let material = new THREE.MeshPhongMaterial({
-            //     color: Scratch.Cast.toNumber(args.color),
+            //     color: Cast.toNumber(args.color),
             // });
             // 纹理
             let material = new THREE.MeshLambertMaterial({
-                // @ts-ignore
-                color: Scratch.Cast.toNumber(color),
+                
+                color: Cast.toNumber(color),
             });
             material.fog = true;
 
             // 添加到场景
             this.releaseDuplicates(name);
-            // @ts-ignore
+            
             this.objects[name] = new THREE.Mesh(geometry, material);
             this.objects[name].position.set(
-                // @ts-ignore
-                Scratch.Cast.toNumber(x),
-                // @ts-ignore
-                Scratch.Cast.toNumber(y),
-                // @ts-ignore
-                Scratch.Cast.toNumber(z),
+                
+                Cast.toNumber(x),
+                
+                Cast.toNumber(y),
+                
+                Cast.toNumber(z),
             );
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN) == "true") {
+            
+            if (Cast.toString(YN) == "true") {
                 this.objects[name].castShadow = true;
             }
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN2) == "true") {
+            
+            if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
             this.runtime.startHatsWithParams(chen_RenderTheWorld_extensionId + "_objectLoadingCompleted", {
@@ -1605,41 +1603,41 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.YN
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         importOBJ({ name, objfile, mtlfile, x, y, z, YN, YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
+            
             if (objfile == "fileListEmpty") {
-                // @ts-ignore
+                
                 return;
             }
             // 名称
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 创建加载器
             const objLoader = new OBJLoader();
             const mtlLoader = new MTLLoader();
             // 添加到场景
             this.releaseDuplicates(name);
             // 加载模型
-            // @ts-ignore
-            mtlLoader.load(this.getFileURL(Scratch.Cast.toString(mtlfile)), (mtl) => {
+            
+            mtlLoader.load(this.getFileURL(Cast.toString(mtlfile)), (mtl) => {
                 mtl.preload();
                 objLoader.setMaterials(mtl);
-                // @ts-ignore
-                objLoader.load(this.getFileURL(Scratch.Cast.toString(objfile)), (root) => {
+                
+                objLoader.load(this.getFileURL(Cast.toString(objfile)), (root) => {
                     this.objects[name] = root;
-                    // this.objects[name].position.set(Scratch.Cast.toNumber(args.x), Scratch.Cast.toNumber(args.y), Scratch.Cast.toNumber(args.z));
-                    // @ts-ignore
-                    this.objects[name].position.x = Scratch.Cast.toNumber(x);
-                    // @ts-ignore
-                    this.objects[name].position.y = Scratch.Cast.toNumber(y);
-                    // @ts-ignore
-                    this.objects[name].position.z = Scratch.Cast.toNumber(z);
-                    // @ts-ignore
-                    if (Scratch.Cast.toString(YN) == "true") {
+                    // this.objects[name].position.set(Cast.toNumber(args.x), Cast.toNumber(args.y), Cast.toNumber(args.z));
+                    
+                    this.objects[name].position.x = Cast.toNumber(x);
+                    
+                    this.objects[name].position.y = Cast.toNumber(y);
+                    
+                    this.objects[name].position.z = Cast.toNumber(z);
+                    
+                    if (Cast.toString(YN) == "true") {
                         this.objects[name].castShadow = true;
                         this.objects[name].traverse(function(node) {
                             if (node.isMesh) {
@@ -1647,8 +1645,8 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                             }
                         });
                     }
-                    // @ts-ignore
-                    if (Scratch.Cast.toString(YN2) == "true") {
+                    
+                    if (Cast.toString(YN2) == "true") {
                         this.objects[name].receiveShadow = true;
                         this.objects[name].traverse(function(node) {
                             if (node.isMesh) {
@@ -1678,23 +1676,23 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.YN
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         importGLTF({ name, gltffile, x, y, z, YN, YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
+            
             if (gltffile == "fileListEmpty") {
-                // @ts-ignore
+                
                 return;
             }
             // 名称
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 创建加载器
             const gltfLoader = new GLTFLoader();
-            // @ts-ignore
-            const url = this.getFileURL(Scratch.Cast.toString(gltffile));
+            
+            const url = this.getFileURL(Cast.toString(gltffile));
             // 添加到场景
             this.releaseDuplicates(name);
             // 加载模型
@@ -1711,14 +1709,14 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                 };
 
                 this.objects[name] = root;
-                // @ts-ignore
-                this.objects[name].position.x = Scratch.Cast.toNumber(x);
-                // @ts-ignore
-                this.objects[name].position.y = Scratch.Cast.toNumber(y);
-                // @ts-ignore
-                this.objects[name].position.z = Scratch.Cast.toNumber(z);
-                // @ts-ignore
-                if (Scratch.Cast.toString(YN) == "true") {
+                
+                this.objects[name].position.x = Cast.toNumber(x);
+                
+                this.objects[name].position.y = Cast.toNumber(y);
+                
+                this.objects[name].position.z = Cast.toNumber(z);
+                
+                if (Cast.toString(YN) == "true") {
                     this.objects[name].castShadow = true;
                     this.objects[name].traverse(function(node) {
                         if (node.isMesh) {
@@ -1726,8 +1724,8 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                         }
                     });
                 }
-                // @ts-ignore
-                if (Scratch.Cast.toString(YN2) == "true") {
+                
+                if (Cast.toString(YN2) == "true") {
                     this.objects[name].receiveShadow = true;
                     this.objects[name].traverse(function(node) {
                         if (node.isMesh) {
@@ -1750,15 +1748,15 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.name
          * @param {string} args.animationName
          */
-        // @ts-ignore
+        
         playAnimation({ name, animationName }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
-            // @ts-ignore
-            animationName = Scratch.Cast.toString(animationName);
+            
+            name = Cast.toString(name);
+            
+            animationName = Cast.toString(animationName);
             if (name in this.animations && this.animations[name].mixer) {
                 const cilp = THREE.AnimationClip.findByName(this.animations[name].clips, animationName);
                 if (!cilp) {
@@ -1775,15 +1773,15 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.name
          * @param {string} args.animationName
          */
-        // @ts-ignore
+        
         stopAnimation({ name, animationName }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
-            // @ts-ignore
-            animationName = Scratch.Cast.toString(animationName);
+            
+            name = Cast.toString(name);
+            
+            animationName = Cast.toString(animationName);
             if (name in this.animations) {
                 if (animationName in this.animations[name].action) {
                     this.animations[name].action[animationName].stop();
@@ -1797,15 +1795,15 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.name
          * @param {number} args.time
          */
-        // @ts-ignore
+        
         updateAnimation({ name, time }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
-            // @ts-ignore
-            time = Scratch.Cast.toNumber(time);
+            
+            name = Cast.toString(name);
+            
+            time = Cast.toNumber(time);
             if (name in this.animations && this.animations[name].mixer) {
                 this.animations[name].mixer.update(time / 1000);
             }
@@ -1820,18 +1818,18 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {string} args.name
          */
-        // @ts-ignore
+        
         getAnimation({ name }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
 
             if (name in this.animations && this.animations[name].clips) {
                 const clips = [];
                 for (let i = 0; i < this.animations[name].clips.length; i++) {
-                    // @ts-ignore
+                    
                     clips.push(this.animations[name].clips[i].name);
                 }
                 return JSON.stringify(clips);
@@ -1845,81 +1843,81 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {string} args.name
          */
-        // @ts-ignore
+        
         deleteObject({ name }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             this.releaseDuplicates(name);
         }
 
-        // @ts-ignore
+        
         rotationObject({ name, x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
                 // 设置旋转角度
                 this.objects[name].rotation.set(
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(x)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(y)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
             } else {
-                // @ts-ignore
+                
                 return;
             }
         }
 
-        // @ts-ignore
+        
         moveObject({ name, x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
                 // 设置坐标
                 this.objects[name].position.set(
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(x),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(y),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(z),
+                    
+                    Cast.toNumber(x),
+                    
+                    Cast.toNumber(y),
+                    
+                    Cast.toNumber(z),
                 );
             } else {
-                // @ts-ignore
+                
                 return;
             }
         }
 
-        // @ts-ignore
+        
         scaleObject({ name, x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
                 // 设置缩放
                 this.objects[name].scale.set(
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(x),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(y),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(z),
+                    
+                    Cast.toNumber(x),
+                    
+                    Cast.toNumber(y),
+                    
+                    Cast.toNumber(z),
                 );
             } else {
-                // @ts-ignore
+                
                 return;
             }
         }
@@ -1931,11 +1929,11 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.xyz
          */
         getObjectPos({ name, xyz }) {
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
-                // @ts-ignore
-                switch (Scratch.Cast.toString(xyz)) {
+                
+                switch (Cast.toString(xyz)) {
                     case "x":
                         return this.objects[name].position.x;
                     case "y":
@@ -1954,13 +1952,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.name
          * @param {string} args.xyz
          */
-        // @ts-ignore
+        
         getObjectRotation({ name, xyz }) {
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
-                // @ts-ignore
-                switch (Scratch.Cast.toString(xyz)) {
+                
+                switch (Cast.toString(xyz)) {
                     case "x":
                         return THREE.MathUtils.radToDeg(this.objects[name].rotation.x);
                     case "y":
@@ -1969,7 +1967,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                         return THREE.MathUtils.radToDeg(this.objects[name].rotation.z);
                 }
             } else {
-                // @ts-ignore
+                
                 return;
             }
         }
@@ -1981,11 +1979,11 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.xyz
          */
         getObjectScale({ name, xyz }) {
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.objects) {
-                // @ts-ignore
-                switch (Scratch.Cast.toString(xyz)) {
+                
+                switch (Cast.toString(xyz)) {
                     case "x":
                         return this.objects[name].scale.x;
                     case "y":
@@ -2011,37 +2009,37 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.decay
          * @param {string} args.YN
          */
-        // @ts-ignore
+        
         makePointLight({ name, color, intensity, x, y, z, decay, YN }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             // 创建点光源
             if (name in this.lights) {
                 this._deleteObject(this.lights[name]);
                 this.lights[name].dispose();
             }
             this.lights[name] = new THREE.PointLight(
-                // @ts-ignore
-                Scratch.Cast.toNumber(color),
-                // @ts-ignore
-                Scratch.Cast.toNumber(intensity),
+                
+                Cast.toNumber(color),
+                
+                Cast.toNumber(intensity),
                 0,
-                // @ts-ignore
-                Scratch.Cast.toNumber(decay),
+                
+                Cast.toNumber(decay),
             ); //创建光源
             this.lights[name].position.set(
-                // @ts-ignore
-                Scratch.Cast.toNumber(x),
-                // @ts-ignore
-                Scratch.Cast.toNumber(y),
-                // @ts-ignore
-                Scratch.Cast.toNumber(z),
+                
+                Cast.toNumber(x),
+                
+                Cast.toNumber(y),
+                
+                Cast.toNumber(z),
             ); //设置光源的位置
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN) == "true") {
+            
+            if (Cast.toString(YN) == "true") {
                 this.lights[name].castShadow = true;
             }
             this.scene.add(this.lights[name]); //在场景中添加光源
@@ -2051,45 +2049,45 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.lights) {
-                // @ts-ignore
-                this.lights[name].shadow.mapSize.width = Scratch.Cast.toNumber(xsize);
-                // @ts-ignore
-                this.lights[name].shadow.mapSize.height = Scratch.Cast.toNumber(ysize);
+                
+                this.lights[name].shadow.mapSize.width = Cast.toNumber(xsize);
+                
+                this.lights[name].shadow.mapSize.height = Cast.toNumber(ysize);
             }
         }
 
-        // @ts-ignore
+        
         moveLight({ name, x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.lights) {
                 // 设置坐标
                 this.lights[name].position.set(
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(x),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(y),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(z),
+                    
+                    Cast.toNumber(x),
+                    
+                    Cast.toNumber(y),
+                    
+                    Cast.toNumber(z),
                 );
             } else {
-                // @ts-ignore
+                
                 return;
             }
         }
 
         getLightPos({ name, xyz }) {
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
             if (name in this.lights) {
-                // @ts-ignore
-                switch (Scratch.Cast.toString(xyz)) {
+                
+                switch (Cast.toString(xyz)) {
                     case "x":
                         return this.lights[name].position.x;
                     case "y":
@@ -2102,13 +2100,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             }
         }
 
-        // @ts-ignore
+        
         deleteLight({ name }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            name = Scratch.Cast.toString(name);
+            
+            name = Cast.toString(name);
 
             if (name in this.lights) {
                 this._deleteObject(this.lights[name]);
@@ -2121,18 +2119,18 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.color
          * @param {number} args.intensity
          */
-        // @ts-ignore
+        
         setAmbientLightColor({ color, intensity }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             // 设置环境光颜色
             this.ambient_light.color = new THREE.Color(
-                // @ts-ignore
-                Scratch.Cast.toNumber(color),
+                
+                Cast.toNumber(color),
             );
-            // @ts-ignore
-            this.ambient_light.intensity = Scratch.Cast.toNumber(intensity);
+            
+            this.ambient_light.intensity = Cast.toNumber(intensity);
         }
 
         /**
@@ -2142,22 +2140,22 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.groundColor
          * @param {number} args.intensity
          */
-        // @ts-ignore
+        
         setHemisphereLightColor({ skyColor, groundColor, intensity }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             // 设置环境光颜色
             this.hemisphere_light.color = new THREE.Color(
-                // @ts-ignore
-                Scratch.Cast.toNumber(skyColor),
+                
+                Cast.toNumber(skyColor),
             );
             this.hemisphere_light.groundColor = new THREE.Color(
-                // @ts-ignore
-                Scratch.Cast.toNumber(groundColor),
+                
+                Cast.toNumber(groundColor),
             );
-            // @ts-ignore
-            this.hemisphere_light.intensity = Scratch.Cast.toNumber(intensity);
+            
+            this.hemisphere_light.intensity = Cast.toNumber(intensity);
         }
 
         /**
@@ -2167,20 +2165,20 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.y
          * @param {number} args.z
          */
-        // @ts-ignore
+        
         moveCamera({ x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             if (!this.controls.enabled) {
-                // @ts-ignore
+                
                 this.camera.position.set(
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(x),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(y),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(z),
+                    
+                    Cast.toNumber(x),
+                    
+                    Cast.toNumber(y),
+                    
+                    Cast.toNumber(z),
                 );
             }
         }
@@ -2192,20 +2190,20 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.y
          * @param {number} args.z
          */
-        // @ts-ignore
+        
         rotationCamera({ x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             if (!this.controls.enabled) {
-                // @ts-ignore
+                
                 this.camera.rotation.set(
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(x)),
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(y)),
-                    // @ts-ignore
-                    THREE.MathUtils.degToRad(Scratch.Cast.toNumber(z)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(x)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(y)),
+                    
+                    THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
             }
         }
@@ -2217,19 +2215,19 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.y
          * @param {number} args.z
          */
-        // @ts-ignore
+        
         cameraLookAt({ x, y, z }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             if (!this.controls.enabled) {
                 this.camera.lookAt(
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(x),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(y),
-                    // @ts-ignore
-                    Scratch.Cast.toNumber(z),
+                    
+                    Cast.toNumber(x),
+                    
+                    Cast.toNumber(y),
+                    
+                    Cast.toNumber(z),
                 );
             }
         }
@@ -2243,16 +2241,16 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             if (!this.camera) {
                 return;
             }
-            // @ts-ignore
-            switch (Scratch.Cast.toString(xyz)) {
+            
+            switch (Cast.toString(xyz)) {
                 case "x":
-                    // @ts-ignore
+                    
                     return this.camera.position.x;
                 case "y":
-                    // @ts-ignore
+                    
                     return this.camera.position.y;
                 case "z":
-                    // @ts-ignore
+                    
                     return this.camera.position.z;
             }
         }
@@ -2262,22 +2260,22 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {string} args.xyz
          */
-        // @ts-ignore
+        
         getCameraRotation({ xyz }) {
             if (!this.camera) {
-                // @ts-ignore
+                
                 return;
             }
-            // @ts-ignore
-            switch (Scratch.Cast.toString(xyz)) {
+            
+            switch (Cast.toString(xyz)) {
                 case "x":
-                    // @ts-ignore
+                    
                     return THREE.MathUtils.radToDeg(this.camera.rotation.x);
                 case "y":
-                    // @ts-ignore
+                    
                     return THREE.MathUtils.radToDeg(this.camera.rotation.y);
                 case "z":
-                    // @ts-ignore
+                    
                     return THREE.MathUtils.radToDeg(this.camera.rotation.z);
             }
         }
@@ -2289,7 +2287,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {string} args.yn2
          * @param {string} args.yn3
          */
-        // @ts-ignore
+        
         controlCamera({ yn1, yn2, yn3 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
@@ -2313,13 +2311,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             this.controls.update();
         }
 
-        // @ts-ignore
+        
         setControlState({ YN }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN) == "true") {
+            
+            if (Cast.toString(YN) == "true") {
                 this.controls.enabled = true;
             } else {
                 this.controls.enabled = false;
@@ -2339,13 +2337,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {string} args.YN2
          */
-        // @ts-ignore
+        
         setControlCameraDamping({ YN2 }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            if (Scratch.Cast.toString(YN2) == "yes") {
+            
+            if (Cast.toString(YN2) == "yes") {
                 this.controls.enableDamping = true;
             } else {
                 this.controls.enableDamping = false;
@@ -2357,13 +2355,13 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {object} args
          * @param {number} args.num
          */
-        // @ts-ignore
+        
         setControlCameraDampingNum({ num }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            // @ts-ignore
-            this.controls.dampingFactor = Scratch.Cast.toNumber(num);
+            
+            this.controls.dampingFactor = Cast.toNumber(num);
         }
 
         /**
@@ -2373,25 +2371,25 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          * @param {number} args.near
          * @param {number} args.far
          */
-        // @ts-ignore
+        
         enableFogEffect({ color, near, far }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
             this.scene.fog = new THREE.Fog(
-                // @ts-ignore
-                Scratch.Cast.toNumber(color),
-                // @ts-ignore
-                Scratch.Cast.toNumber(near),
-                // @ts-ignore
-                Scratch.Cast.toNumber(far),
+                
+                Cast.toNumber(color),
+                
+                Cast.toNumber(near),
+                
+                Cast.toNumber(far),
             );
         }
 
         /**
          * 禁用雾效果
          */
-        // @ts-ignore
+        
         disableFogEffect(args) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
@@ -2409,48 +2407,46 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
          */
         color_({ R, G, B }) {
             return (
-                // @ts-ignore
-                Math.min(Math.max(Scratch.Cast.toNumber(R), 0), 255) * 65536 +
-                // @ts-ignore
-                Math.min(Math.max(Scratch.Cast.toNumber(G), 0), 255) * 256 +
-                // @ts-ignore
-                Math.min(Math.max(Scratch.Cast.toNumber(B), 0), 255)
+                
+                Math.min(Math.max(Cast.toNumber(R), 0), 255) * 65536 +
+                
+                Math.min(Math.max(Cast.toNumber(G), 0), 255) * 256 +
+                
+                Math.min(Math.max(Cast.toNumber(B), 0), 255)
             );
         }
     }
-    if (Scratch.vm?.runtime) {
-        Scratch.extensions.register(new RenderTheWorld(Scratch.vm.runtime));
-    } else {
-        window.tempExt = {
-            // @ts-ignore
-            Extension: RenderTheWorld,
-            info: {
-                name: "RenderTheWorld.name",
-                description: "RenderTheWorld.descp",
-                extensionId: chen_RenderTheWorld_extensionId,
-                iconURL: chen_RenderTheWorld_picture,
-                insetIconURL: chen_RenderTheWorld_icon,
-                featured: true,
-                disabled: false,
-                collaborator: "陈思翰 @ CCW",
-                collaboratorURL: "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
-                collaboratorList: [
-                    {
-                        collaborator: "陈思翰 @ CCW",
-                        collaboratorURL: "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
-                    },
-                ],
-            },
-            l10n: {
-                "zh-cn": {
-                    "RenderTheWorld.name": "渲染世界",
-                    "RenderTheWorld.descp": "立体空间, WebGL帮你实现!",
+    
+    extensions.register(new RenderTheWorld(runtime));
+    window.tempExt = {
+        
+        Extension: RenderTheWorld,
+        info: {
+            name: "RenderTheWorld.name",
+            description: "RenderTheWorld.descp",
+            extensionId: chen_RenderTheWorld_extensionId,
+            iconURL: chen_RenderTheWorld_picture,
+            insetIconURL: chen_RenderTheWorld_icon,
+            featured: true,
+            disabled: false,
+            collaborator: "陈思翰 @ CCW",
+            collaboratorURL: "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
+            collaboratorList: [
+                {
+                    collaborator: "陈思翰 @ CCW",
+                    collaboratorURL: "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
                 },
-                en: {
-                    "RenderTheWorld.name": "Render The World",
-                    "RenderTheWorld.descp": "WebGL Start!",
-                },
+            ],
+        },
+        l10n: {
+            "zh-cn": {
+                "RenderTheWorld.name": "渲染世界",
+                "RenderTheWorld.descp": "立体空间, WebGL帮你实现!",
             },
-        };
-    }
+            en: {
+                "RenderTheWorld.name": "Render The World",
+                "RenderTheWorld.descp": "WebGL Start!",
+            },
+        },
+    };
 })(Scratch);
