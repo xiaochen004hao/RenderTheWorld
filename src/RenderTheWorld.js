@@ -1126,16 +1126,20 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
             };
         }
         __gandiAssetsJsonFileList() {
-            if (!this.runtime.getGandiAssetsFileList) {
-                return [
-                    {
-                        text: this.formatMessage("RenderTheWorld.fileListEmpty"),
-                        value: "fileListEmpty",
-                    },
-                ]
+            try {
+                const list = this.runtime.getGandiAssetsFileList("json").map((item) => item.name);
+                if (list.length < 1) {
+                    return [
+                        {
+                            text: this.formatMessage("RenderTheWorld.fileListEmpty"),
+                            value: "fileListEmpty",
+                        },
+                    ];
+                }
+
+                return list;
             }
-            const list = this.runtime.getGandiAssetsFileList("json").map((item) => item.name);
-            if (list.length < 1) {
+            catch(err) {
                 return [
                     {
                         text: this.formatMessage("RenderTheWorld.fileListEmpty"),
@@ -1143,8 +1147,7 @@ import { chen_RenderTheWorld_picture, chen_RenderTheWorld_icon } from "./assets/
                     },
                 ];
             }
-
-            return list;
+            
         }
 
         /**
