@@ -1605,6 +1605,15 @@ import {
                                 defaultValue: "name",
                             },
                         },
+                        expandableBlock: {
+                            expandableArgs: {
+                              'TEXT': ['text', ', ', 1],
+                              'NAME': ['string', 'name'],
+                            },
+                            defaultIndex: 1,
+                            textBegin: '',
+                            textEnd: ''
+                        }
                     },
                     {
                         blockType: BlockType.LABEL,
@@ -2915,15 +2924,22 @@ import {
             }
         }
 
-        deleteLight({ name }) {
+        deleteLight(args) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
 
-            name = Cast.toString(name);
+            let name = Cast.toString(args.name), i = 1;
 
             if (name in this.lights) {
                 this._deleteObject(this.lights[name]);
+            }
+
+            while (args[`NAME_${i}`]) {
+                if (args[`NAME_${i}`] in this.lights) {
+                    this._deleteObject(this.lights[args[`NAME_${i}`]]);
+                }
+                i++;
             }
         }
 
