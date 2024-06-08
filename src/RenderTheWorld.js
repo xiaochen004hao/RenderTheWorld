@@ -1810,6 +1810,7 @@ import {
 
                 menus: {
                     file_list: {
+                        acceptReporters: true,
                         items: this.__gandiAssetsJsonFileList(),
                     },
                     xyz: {
@@ -1910,7 +1911,10 @@ import {
             try {
                 const list = this.runtime
                     .getGandiAssetsFileList("json")
-                    .map((item) => item.name);
+                    .map((item) => ({
+                        text: item.fullName,
+                        value: item.fullName,
+                    }));
                 if (list.length < 1) {
                     return [
                         {
@@ -2420,6 +2424,14 @@ import {
             if (objfile == "fileListEmpty") {
                 return;
             }
+
+            let _filelist = this.runtime.getGandiAssetsFileList().map((f)=>f.fullName);
+            if (_filelist.indexOf(objfile) == -1){
+                return "⚠️OBJ文件不存在！";
+            }
+            if (_filelist.indexOf(mtlfile) == -1){
+                return "⚠️MTL文件不存在！";
+            }
             // 名称
 
             name = Cast.toString(name);
@@ -2498,6 +2510,11 @@ import {
 
             if (gltffile == "fileListEmpty") {
                 return;
+            }
+
+            let _filelist = this.runtime.getGandiAssetsFileList().map((f)=>f.fullName);
+            if (_filelist.indexOf(gltffile) == -1){
+                return "⚠️GLTF文件不存在！";
             }
             // 名称
 
@@ -2581,7 +2598,6 @@ import {
 
             if (name in this.animations && this.animations[name].mixer) {
                 animationNames.forEach((animationName) => {
-                    console.log(animationNames);
                     const cilp = THREE.AnimationClip.findByName(
                         this.animations[name].clips,
                         animationName,
