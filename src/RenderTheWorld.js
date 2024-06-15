@@ -1811,7 +1811,7 @@ import {
                 menus: {
                     file_list: {
                         acceptReporters: true,
-                        items: this.__gandiAssetsJsonFileList(),
+                        items: "__gandiAssetsJsonFileList",
                     },
                     xyz: {
                         acceptReporters: false,
@@ -2072,6 +2072,7 @@ import {
             }
 
             this.tc.style.display = "block";
+            this.tc.style.position = "absolute";
 
             this.scratchCanvas = this.runtime.renderer.canvas;
 
