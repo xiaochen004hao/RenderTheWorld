@@ -949,11 +949,13 @@ import {
                         blockType: BlockType.BOOLEAN,
                         text: this.formatMessage("RenderTheWorld.get3dState"),
                     },
+                    /*
                     {
                         opcode: "render",
                         blockType: BlockType.COMMAND,
                         text: this.formatMessage("RenderTheWorld.render"),
                     },
+                    */
                     {
                         blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.tools"),
@@ -2039,6 +2041,7 @@ import {
                     this.tc.style.height = String(pixelsTall) + "px";
                 }
             };
+            /*
             this.runtime.renderer.draw = () => {
                 if (!this.isTcShow) {
                     _draw.call(this.runtime.renderer);
@@ -2049,6 +2052,7 @@ import {
                 }
             };
             this.dirty = false;
+            */
 
             this.scratchCanvas = this.runtime.renderer.canvas;
 
@@ -2153,6 +2157,28 @@ import {
             this.tc.style.height = this.scratchCanvas.style.height;
             this.tc.style.display = "none"; // 默认隐藏
             this.isTcShow = false;
+
+            this.render = () => {
+          if (!this.tc) {
+            this.renderer.setAnimationLoop(null)
+            return "\u26A0\uFE0F\u663E\u793A\u5668\u672A\u521D\u59CB\u5316\uFF01";
+          }
+          this._clock = this.clock.getDelta();
+          this.renderer.render(this.scene, this.camera);
+          if (this.controls.enableDamping) {
+            this.controls.update();
+          }
+        }
+
+        this.runtime.on('PROJECT_START', () => {
+          console.log(chen_RenderTheWorld_extensionId + ": Starting renders")
+          this.renderer.setAnimationLoop(this.render)
+        })
+
+        this.runtime.on('PROJECT_STOP_ALL', () => {
+          console.log(chen_RenderTheWorld_extensionId + ": Stopping renders")
+          this.renderer.setAnimationLoop(null)
+        })
         }
 
         /**
@@ -2172,6 +2198,7 @@ import {
             } else {
                 this.tc.style.display = "none";
                 this.isTcShow = false;
+                this.renderer.setAnimationLoop(null)
             }
         }
 
@@ -2186,7 +2213,7 @@ import {
 
         /**
          * 渲染，放在主循环里
-         */
+         
 
         render(args) {
             if (!this.tc) {
@@ -2198,7 +2225,7 @@ import {
             if (this.controls.enableDamping) {
                 this.controls.update();
             }
-        }
+        }*/
 
         /**
          * 创建或重置长方体
