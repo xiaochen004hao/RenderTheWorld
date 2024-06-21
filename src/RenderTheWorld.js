@@ -2051,8 +2051,8 @@ import {
                     this.renderer.render(this.scene, this.camera);
                 }
             };
-            this.dirty = false;
             */
+            this.dirty = false;
 
             this.scratchCanvas = this.runtime.renderer.canvas;
 
