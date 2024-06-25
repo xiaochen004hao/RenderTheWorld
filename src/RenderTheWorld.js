@@ -671,8 +671,6 @@ import {
                 "结束模型: [name] 的动画[animationName]",
             "RenderTheWorld.updateAnimation":
                 "推进模型: [name] 的动画 [time]毫秒 并更新",
-            "RenderTheWorld.updateAnimation2":
-                "自动推进模型: [name] 的动画并更新",
             "RenderTheWorld.getAnimation": "获取模型: [name] 的所有动画",
 
             "RenderTheWorld.rotationObject":
@@ -699,6 +697,8 @@ import {
                 "设置半球光天空颜色: [skyColor] 地面颜色: [groundColor] 光照强度: [intensity]",
             "RenderTheWorld.makePointLight":
                 "创建或重置点光源: [name] 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 衰减量[decay] [YN]投射阴影",
+            "RenderTheWorld.makeDirectionalLight":
+                "创建或重置方向光: [name] 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 指向: x[x2] y[y2] z[z2] [YN]投射阴影",
             "RenderTheWorld.setLightMapSize":
                 "设置光源: [name] 的阴影纹理分辨率为: x[xsize] y[ysize]",
             "RenderTheWorld.moveLight": "将光源: [name] 移动到: x[x] y[y] z[z]",
@@ -769,8 +769,6 @@ import {
                 "stop Object: [name]'s Animation [animationName]",
             "RenderTheWorld.updateAnimation":
                 "advance Object: [name]'s animation [time] millisecond and update it",
-            "RenderTheWorld.updateAnimation2":
-                "automatically advance Object: [name]'s animation and update it",
             "RenderTheWorld.getAnimation":
                 "Get Object: [name]'s all animations",
 
@@ -799,6 +797,8 @@ import {
                 "set HemisphereLight's skyColor: [skyColor] groundColor: [groundColor] intensity: [intensity]",
             "RenderTheWorld.makePointLight":
                 "reset or make a PointLight: [name] color: [color] intensity: [intensity] position: x[x] y[y] z[z] decay[decay] [YN]cast shadows",
+            "RenderTheWorld.makeDirectionalLight":
+                "reset or make a DirectionalLight: [name] color: [color] intensity: [intensity] position: x[x] y[y] z[z] to: x[x2] y[y2] z[z2] [YN]cast shadows",
             "RenderTheWorld.setLightMapSize":
                 "set Light: [name]'s shadow texture resolution x[xsize] y[ysize]",
             "RenderTheWorld.moveLight": "Light: [name] go to: x[x] y[y] z[z]",
@@ -949,11 +949,11 @@ import {
                         blockType: BlockType.BOOLEAN,
                         text: this.formatMessage("RenderTheWorld.get3dState"),
                     },
-                    {
-                        opcode: "render",
-                        blockType: BlockType.COMMAND,
-                        text: this.formatMessage("RenderTheWorld.render"),
-                    },
+                    // {
+                    //     opcode: "render",
+                    //     blockType: BlockType.COMMAND,
+                    //     text: this.formatMessage("RenderTheWorld.render"),
+                    // },
                     {
                         blockType: BlockType.LABEL,
                         text: this.formatMessage("RenderTheWorld.tools"),
@@ -1399,19 +1399,6 @@ import {
                         }
                     },
                     {
-                        opcode: "updateAnimation2",
-                        blockType: BlockType.COMMAND,
-                        text: this.formatMessage(
-                            "RenderTheWorld.updateAnimation2",
-                        ),
-                        arguments: {
-                            name: {
-                                type: "string",
-                                defaultValue: "name",
-                            },
-                        },
-                    },
-                    {
                         opcode: "updateAnimation",
                         blockType: BlockType.COMMAND,
                         text: this.formatMessage(
@@ -1492,6 +1479,54 @@ import {
                             decay: {
                                 type: "number",
                                 defaultValue: 2,
+                            },
+                            YN: {
+                                type: "string",
+                                menu: "YN",
+                            },
+                        },
+                    },
+                    {
+                        opcode: "makeDirectionalLight",
+                        blockType: BlockType.COMMAND,
+                        text: this.formatMessage(
+                            "RenderTheWorld.makeDirectionalLight",
+                        ),
+                        arguments: {
+                            name: {
+                                type: "string",
+                                defaultValue: "name",
+                            },
+                            color: {
+                                type: "number",
+                            },
+                            intensity: {
+                                type: "number",
+                                defaultValue: 100,
+                            },
+                            x: {
+                                type: "number",
+                                defaultValue: 0,
+                            },
+                            y: {
+                                type: "number",
+                                defaultValue: 1,
+                            },
+                            z: {
+                                type: "number",
+                                defaultValue: 0,
+                            },
+                            x2: {
+                                type: "number",
+                                defaultValue: 0,
+                            },
+                            y2: {
+                                type: "number",
+                                defaultValue: 1,
+                            },
+                            z2: {
+                                type: "number",
+                                defaultValue: 0,
                             },
                             YN: {
                                 type: "string",
@@ -2039,15 +2074,15 @@ import {
                     this.tc.style.height = String(pixelsTall) + "px";
                 }
             };
-            this.runtime.renderer.draw = () => {
-                if (!this.isTcShow) {
-                    _draw.call(this.runtime.renderer);
-                } else if (this.dirty) {
-                    this.dirty = false; // TODO: 和 Scratch renderer 共用 dirty
-                    // this.dirty 是一个变量，每当场景变更（需要渲染）时就设置为 true
-                    this.renderer.render(this.scene, this.camera);
-                }
-            };
+            // this.runtime.renderer.draw = () => {
+            //     if (!this.isTcShow) {
+            //         _draw.call(this.runtime.renderer);
+            //     } else if (this.dirty) {
+            //         this.dirty = false; // TODO: 和 Scratch renderer 共用 dirty
+            //         // this.dirty 是一个变量，每当场景变更（需要渲染）时就设置为 true
+            //         this.renderer.render(this.scene, this.camera);
+            //     }
+            // };
             this.dirty = false;
 
             this.scratchCanvas = this.runtime.renderer.canvas;
@@ -2153,6 +2188,29 @@ import {
             this.tc.style.height = this.scratchCanvas.style.height;
             this.tc.style.display = "none"; // 默认隐藏
             this.isTcShow = false;
+
+            this.render = () => {
+                if (!this.tc) {
+                  this.renderer.setAnimationLoop(null);
+                  return "⚠️显示器未初始化！";
+                }
+                this._clock = this.clock.getDelta();
+                this.renderer.render(this.scene, this.camera);
+
+                if (this.controls.enableDamping) {
+                  this.controls.update();
+                }
+              };
+        
+              this.runtime.on("PROJECT_START", () => {
+                console.log(chen_RenderTheWorld_extensionId + ": Starting renders");
+                this.renderer.setAnimationLoop(this.render);
+              });
+        
+              this.runtime.on("PROJECT_STOP_ALL", () => {
+                console.log(chen_RenderTheWorld_extensionId + ": Stopping renders");
+                this.renderer.setAnimationLoop(null);
+              });
         }
 
         /**
@@ -2188,17 +2246,17 @@ import {
          * 渲染，放在主循环里
          */
 
-        render(args) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-            this._clock = this.clock.getDelta();
-            this.renderer.render(this.scene, this.camera);
+        // render(args) {
+        //     if (!this.tc) {
+        //         return "⚠️显示器未初始化！";
+        //     }
+        //     this._clock = this.clock.getDelta();
+        //     this.renderer.render(this.scene, this.camera);
 
-            if (this.controls.enableDamping) {
-                this.controls.update();
-            }
-        }
+        //     if (this.controls.enableDamping) {
+        //         this.controls.update();
+        //     }
+        // }
 
         /**
          * 创建或重置长方体
@@ -2661,13 +2719,6 @@ import {
             }
         }
 
-        updateAnimation2({ name }) {
-            return this.updateAnimation({
-                name: name,
-                time: this._clock * 1000,
-            });
-        }
-
         /**
          * 获取物体所有的动画
          * @param {object} args
@@ -2884,6 +2935,44 @@ import {
 
                 Cast.toNumber(z),
             ); //设置光源的位置
+
+            this.lights[name].shadow.bias = -0.00005;
+            if (Cast.toString(YN) == "true") {
+                this.lights[name].castShadow = true;
+            }
+            this.scene.add(this.lights[name]); //在场景中添加光源
+        }
+        
+        makeDirectionalLight({ name, color, intensity, x, y, z, x2, y2, z2, YN }) {
+            if (!this.tc) {
+                return "⚠️显示器未初始化！";
+            }
+
+            name = Cast.toString(name);
+            // 创建点光源
+            if (name in this.lights) {
+                this._deleteObject(this.lights[name]);
+                this.lights[name].dispose();
+            }
+            this.lights[name] = new THREE.DirectionalLight(
+                Cast.toNumber(color),
+                Cast.toNumber(intensity)
+            ); //创建光源
+
+            this.lights[name].position.set(
+                Cast.toNumber(x),
+
+                Cast.toNumber(y),
+
+                Cast.toNumber(z),
+            ); //设置光源的位置
+            this.lights[name].target.position.set(
+                Cast.toNumber(x),
+
+                Cast.toNumber(y),
+
+                Cast.toNumber(z),
+            ); //设置光源目标的位置
 
             this.lights[name].shadow.bias = -0.00005;
             if (Cast.toString(YN) == "true") {
