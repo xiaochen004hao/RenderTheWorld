@@ -238,8 +238,8 @@ import {
                                     type === "substack"
                                         ? this.appendStatementInput(inputKeyID)
                                         : type === "list" || type === "text"
-                                          ? this.appendDummyInput(inputKeyID)
-                                          : this.appendValueInput(inputKeyID);
+                                            ? this.appendDummyInput(inputKeyID)
+                                            : this.appendValueInput(inputKeyID);
                                 if (type === "text") {
                                     input.appendField("text");
                                 } else if (type === "boolean") {
@@ -417,8 +417,8 @@ import {
                                             ].fieldRow[0].setText(text);
                                     } else {
                                         let flag1 =
-                                                args[1] !== 1 &&
-                                                args[1] !== this.itemCount_,
+                                            args[1] !== 1 &&
+                                            args[1] !== this.itemCount_,
                                             index = inputKeys.indexOf(args[0]),
                                             flag2 =
                                                 index > 0 &&
@@ -494,7 +494,7 @@ import {
                                         !this.ARGS.includes(name) &&
                                         this.expandableArgs[argName] &&
                                         this.expandableArgs[argName][0] !==
-                                            "text"
+                                        "text"
                                     ) {
                                         target.blocks.deleteBlock(
                                             block.inputs[name].shadow,
@@ -840,6 +840,7 @@ import {
                 this.runtime,
                 this
             );
+            this.is_listener = false;
 
             // 兼容性
             this.isWebglAvailable = false;
@@ -1217,8 +1218,8 @@ import {
                         },
                         expandableBlock: {
                             expandableArgs: {
-                              'TEXT': ['text', ', ', 1],
-                              'NAME': ['string', 'name'],
+                                'TEXT': ['text', ', ', 1],
+                                'NAME': ['string', 'name'],
                             },
                             defaultIndex: 1,
                             textBegin: '',
@@ -1364,8 +1365,8 @@ import {
                         },
                         expandableBlock: {
                             expandableArgs: {
-                              'TEXT': ['text', ', ', 1],
-                              'ANIMATIONMAME': ['string', 'animationName'],
+                                'TEXT': ['text', ', ', 1],
+                                'ANIMATIONMAME': ['string', 'animationName'],
                             },
                             defaultIndex: 1,
                             textBegin: '',
@@ -1390,8 +1391,8 @@ import {
                         },
                         expandableBlock: {
                             expandableArgs: {
-                              'TEXT': ['text', ', ', 1],
-                              'ANIMATIONMAME': ['string', 'animationName'],
+                                'TEXT': ['text', ', ', 1],
+                                'ANIMATIONMAME': ['string', 'animationName'],
                             },
                             defaultIndex: 1,
                             textBegin: '',
@@ -1642,8 +1643,8 @@ import {
                         },
                         expandableBlock: {
                             expandableArgs: {
-                              'TEXT': ['text', ', ', 1],
-                              'NAME': ['string', 'name'],
+                                'TEXT': ['text', ', ', 1],
+                                'NAME': ['string', 'name'],
                             },
                             defaultIndex: 1,
                             textBegin: '',
@@ -1995,7 +1996,7 @@ import {
          * @param {object} args
          */
 
-        isWebGLAvailable({}) {
+        isWebGLAvailable({ }) {
             this.isWebglAvailable = WebGL.isWebGLAvailable();
         }
         /**
@@ -2004,7 +2005,7 @@ import {
          * @return {boolean}
          */
 
-        _isWebGLAvailable({}) {
+        _isWebGLAvailable({ }) {
             return this.isWebglAvailable;
         }
 
@@ -2191,26 +2192,33 @@ import {
 
             this.render = () => {
                 if (!this.tc) {
-                  this.renderer.setAnimationLoop(null);
-                  return "⚠️显示器未初始化！";
+                    this.renderer.setAnimationLoop(null);
+                    return "⚠️显示器未初始化！";
                 }
                 this._clock = this.clock.getDelta();
                 this.renderer.render(this.scene, this.camera);
 
                 if (this.controls.enableDamping) {
-                  this.controls.update();
+                    this.controls.update();
                 }
-              };
-        
-              this.runtime.on("PROJECT_START", () => {
-                console.log(chen_RenderTheWorld_extensionId + ": Starting renders");
-                this.renderer.setAnimationLoop(this.render);
-              });
-        
-              this.runtime.on("PROJECT_STOP_ALL", () => {
-                console.log(chen_RenderTheWorld_extensionId + ": Stopping renders");
-                this.renderer.setAnimationLoop(null);
-              });
+            };
+
+            this._listener();
+        }
+
+        _listener() {
+            if (!this.is_listener) {
+                this.runtime.on("PROJECT_START", () => {
+                    console.log(chen_RenderTheWorld_extensionId + ": Starting renders");
+                    this.renderer.setAnimationLoop(this.render);
+                });
+
+                this.runtime.on("PROJECT_STOP_ALL", () => {
+                    console.log(chen_RenderTheWorld_extensionId + ": Stopping renders");
+                    this.renderer.setAnimationLoop(null);
+                });
+                this.is_listener = true;
+            }
         }
 
         /**
@@ -2484,11 +2492,11 @@ import {
                 return;
             }
 
-            let _filelist = this.runtime.getGandiAssetsFileList().map((f)=>f.fullName);
-            if (_filelist.indexOf(objfile) == -1){
+            let _filelist = this.runtime.getGandiAssetsFileList().map((f) => f.fullName);
+            if (_filelist.indexOf(objfile) == -1) {
                 return "⚠️OBJ文件不存在！";
             }
-            if (_filelist.indexOf(mtlfile) == -1){
+            if (_filelist.indexOf(mtlfile) == -1) {
                 return "⚠️MTL文件不存在！";
             }
             // 名称
@@ -2536,7 +2544,7 @@ import {
                         }
                         this.runtime.startHatsWithParams(
                             chen_RenderTheWorld_extensionId +
-                                "_objectLoadingCompleted",
+                            "_objectLoadingCompleted",
                             {
                                 parameters: {
                                     name: name,
@@ -2571,8 +2579,8 @@ import {
                 return;
             }
 
-            let _filelist = this.runtime.getGandiAssetsFileList().map((f)=>f.fullName);
-            if (_filelist.indexOf(gltffile) == -1){
+            let _filelist = this.runtime.getGandiAssetsFileList().map((f) => f.fullName);
+            if (_filelist.indexOf(gltffile) == -1) {
                 return "⚠️GLTF文件不存在！";
             }
             // 名称
@@ -2689,7 +2697,7 @@ import {
                 animationNames.push(args[`ANIMATIONMAME_${i}`])
                 i++;
             }
-            
+
             if (name in this.animations) {
                 animationNames.forEach((animationName) => {
                     if (animationName in this.animations[name].action) {
@@ -2942,7 +2950,7 @@ import {
             }
             this.scene.add(this.lights[name]); //在场景中添加光源
         }
-        
+
         makeDirectionalLight({ name, color, intensity, x, y, z, x2, y2, z2, YN }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
@@ -3243,7 +3251,7 @@ import {
             this.controls.update();
         }
 
-        mouseCanControlCamera({}) {
+        mouseCanControlCamera({ }) {
             if (!this.tc) {
                 return false;
             }
