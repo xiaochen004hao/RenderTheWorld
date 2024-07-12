@@ -615,6 +615,72 @@ import {
         });
     };
 
+    /*
+    * By: Xeltalliv
+    * Link: https://github.com/Xeltalliv/extensions/blob/webgl2-dev/extensions/webgl2.js
+    *
+    * Modified by: Fath11
+    * Link: https://github.com/fath11
+    *
+    * Please keep this comment if you wanna use this code :3
+    */
+    class Skins {
+        constructor(runtime) {
+        this.runtime = runtime
+        const Skin = this.runtime.renderer.exports.Skin
+    
+        class CanvasSkin extends Skin {
+            constructor(id, renderer) {
+            super(id, renderer)
+            this.gl = renderer._gl
+            const texture = this.gl.createTexture()
+            this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST)
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST)
+            //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0,255,0,255]));
+            this._texture = texture
+            this._rotationCenter = [320, 180]
+            this._size = [640, 360]
+            }
+            dispose() {
+            if (this._texture) {
+                this.renderer.gl.deleteTexture(this._texture)
+                this._texture = null
+            }
+            super.dispose()
+            }
+            set size(value) {
+            this._size = value
+            this._rotationCenter = [value[0] / 2, value[1] / 2]
+            }
+            get size() {
+            return this._size
+            }
+            getTexture(scale) {
+            return this._texture || super.getTexture()
+            }
+            setContent(textureData) {
+            this.gl.bindTexture(this.gl.TEXTURE_2D, this._texture)
+            this.gl.texImage2D(
+                this.gl.TEXTURE_2D,
+                0,
+                this.gl.RGBA,
+                this.gl.RGBA,
+                this.gl.UNSIGNED_BYTE,
+                textureData,
+            )
+            this.emit(Skin.Events.WasAltered)
+            }
+        }
+    
+        this.CanvasSkin = CanvasSkin
+        }
+    }
+    //End of Skins, Please keep this comment if you wanna use this code :3
+
     const {
         ArgumentType,
         BlockType,
@@ -635,8 +701,8 @@ import {
             "RenderTheWorld.fileListEmpty": "没有文件",
             "RenderTheWorld.apidocs": "📖API文档",
             "RenderTheWorld.objectLoadingCompleted": "当[name]对象加载完成时",
-            "RenderTheWorld.set3dState": "设置3D显示器状态为: [state]",
-            "RenderTheWorld.get3dState": "​3D显示器是显示的?",
+            //"RenderTheWorld.set3dState": "设置3D显示器状态为: [state]",
+            //"RenderTheWorld.get3dState": "​3D显示器是显示的?",
             "RenderTheWorld.3dState.display": "显示",
             "RenderTheWorld.3dState.hidden": "隐藏",
             "RenderTheWorld.init":
@@ -832,6 +898,7 @@ import {
         constructor(_runtime) {
             this.runtime = _runtime ?? Scratch?.vm?.runtime;
             if (!this.runtime) return;
+            console.log(this.runtime)
 
             hackFun(_runtime);
 
@@ -873,9 +940,31 @@ import {
             // 原CCW显示canvas
             //this._ccw = document.getElementsByClassName('gandi_stage_stage_1fD7k')[0].getElementsByTagName('canvas')[0];
             this.scratchCanvas = null;
+
             // threejs显示canvas
             this.tc = null;
-            this.isTcShow = false;
+
+            // Register new drawable group DRAWABLE_GROUP_NAME drawn before DRAW_BEFORE
+            this.DRAWABLE_GROUP_NAME = "threejs";
+	        this.DRAW_BEFORE = "pen";
+
+            let index = this.runtime.renderer._groupOrdering.indexOf(this.DRAW_BEFORE);
+            let copy = this.runtime.renderer._groupOrdering.slice();
+            copy.splice(index, 0, this.DRAWABLE_GROUP_NAME);
+            this.runtime.renderer.setLayerGroupOrdering(copy);
+
+            // threejs skin
+            this.threeSkinId = this.runtime.renderer._nextSkinId++
+            let SkinsClass = new Skins(this.runtime);
+            this.threeSkin = new SkinsClass.CanvasSkin(this.threeSkinId, this.runtime.renderer)
+            this.runtime.renderer._allSkins[this.threeSkinId] = this.threeSkin
+
+            // threejs drawable layer
+            this.threeDrawableId = this.runtime.renderer.createDrawable(this.DRAWABLE_GROUP_NAME)
+            this.runtime.renderer.updateDrawableSkinId(
+                this.threeDrawableId,
+                this.threeSkinId,
+            );
 
             this.clock = null;
             this._clock = 0;
@@ -933,22 +1022,6 @@ import {
                                 menu: "Anti_Aliasing",
                             },
                         },
-                    },
-                    {
-                        opcode: "set3dState",
-                        blockType: BlockType.COMMAND,
-                        text: this.formatMessage("RenderTheWorld.set3dState"),
-                        arguments: {
-                            state: {
-                                type: "string",
-                                menu: "3dState",
-                            },
-                        },
-                    },
-                    {
-                        opcode: "get3dState",
-                        blockType: BlockType.BOOLEAN,
-                        text: this.formatMessage("RenderTheWorld.get3dState"),
                     },
                     // {
                     //     opcode: "render",
@@ -2071,12 +2144,12 @@ import {
             this.runtime.renderer.resize = (pixelsWide, pixelsTall) => {
                 _resize.call(this.runtime.renderer, pixelsWide, pixelsTall);
                 if (this.tc) {
-                    this.tc.style.width = String(pixelsWide) + "px";
-                    this.tc.style.height = String(pixelsTall) + "px";
+                    this.tc.width = String(pixelsWide) + "px";
+                    this.tc.height = String(pixelsTall) + "px";
                 }
             };
             // this.runtime.renderer.draw = () => {
-            //     if (!this.isTcShow) {
+            //     if (!this.isTdShow) {
             //         _draw.call(this.runtime.renderer);
             //     } else if (this.dirty) {
             //         this.dirty = false; // TODO: 和 Scratch renderer 共用 dirty
@@ -2097,18 +2170,10 @@ import {
 
             // 创建threejs显示canvas
             //this._ccw = document.getElementsByClassName('gandi_stage_stage_1fD7k')[0].getElementsByTagName('canvas')[0];
-            if (
-                this.scratchCanvas.parentElement.getElementsByClassName(
-                    "RenderTheWorld",
-                ).length == 0
-            ) {
+            if (!this.tc) {
                 this.tc = document.createElement("canvas");
                 this.tc.className = "RenderTheWorld";
-                this.scratchCanvas.before(this.tc);
             }
-
-            this.tc.style.display = "block";
-            this.tc.style.position = "absolute";
 
             this.scratchCanvas = this.runtime.renderer.canvas;
 
@@ -2117,7 +2182,7 @@ import {
             // 	this._resize();
             // };
             // this.runtime.renderer.draw = () => {
-            // 	if (!this.isTcShow) {
+            // 	if (!this.isTdShow) {
             // 		this.__draw.call(this.runtime.renderer);
             // 	}
             // };
@@ -2150,7 +2215,7 @@ import {
             // 创建摄像机
             this.fov = 40; // 视野范围
             // this.aspect = this.runtime.stageWidth / this.runtime.stageHeight; // 相机默认值 画布的宽高比
-            this.aspect = this.tc.clientWidth / this.tc.clientHeight; // 相机默认值 画布的宽高比
+            this.aspect = this.tc.width / this.tc.height; // 相机默认值 画布的宽高比
             this.near = 0.1; // 近平面
             this.far = 1000; // 远平面
             // 透视投影相机
@@ -2185,18 +2250,11 @@ import {
             );
             this.scene.add(this.hemisphere_light);
 
-            this.tc.style.width = this.scratchCanvas.style.width;
-            this.tc.style.height = this.scratchCanvas.style.height;
-            this.tc.style.display = "none"; // 默认隐藏
-            this.isTcShow = false;
-
             this.render = () => {
-                if (!this.tc) {
-                    this.renderer.setAnimationLoop(null);
-                    return "⚠️显示器未初始化！";
-                }
                 this._clock = this.clock.getDelta();
                 this.renderer.render(this.scene, this.camera);
+                this.threeSkin.setContent(this.tc)
+                this.runtime.requestRedraw()
 
                 if (this.controls.enableDamping) {
                     this.controls.update();
@@ -2219,30 +2277,6 @@ import {
                 });
                 this.is_listener = true;
             }
-        }
-
-        /**
-         * 设置3d渲染器状态
-         * @param {object} args
-         * @param {string} args.state
-         */
-
-        set3dState({ state }) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-
-            if (Cast.toString(state) === "display") {
-                this.tc.style.display = "block";
-                this.isTcShow = true;
-            } else {
-                this.tc.style.display = "none";
-                this.isTcShow = false;
-            }
-        }
-
-        get3dState(args) {
-            return this.isTcShow;
         }
 
         // _resize() {
