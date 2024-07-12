@@ -944,15 +944,6 @@ import {
             // threejs显示canvas
             this.tc = null;
 
-            // Register new drawable group DRAWABLE_GROUP_NAME drawn before DRAW_BEFORE
-            this.DRAWABLE_GROUP_NAME = "threejs";
-	        this.DRAW_BEFORE = "pen";
-
-            let index = this.runtime.renderer._groupOrdering.indexOf(this.DRAW_BEFORE);
-            let copy = this.runtime.renderer._groupOrdering.slice();
-            copy.splice(index, 0, this.DRAWABLE_GROUP_NAME);
-            this.runtime.renderer.setLayerGroupOrdering(copy);
-
             // threejs skin
             this.threeSkinId = this.runtime.renderer._nextSkinId++
             let SkinsClass = new Skins(this.runtime);
@@ -960,7 +951,7 @@ import {
             this.runtime.renderer._allSkins[this.threeSkinId] = this.threeSkin
 
             // threejs drawable layer
-            this.threeDrawableId = this.runtime.renderer.createDrawable(this.DRAWABLE_GROUP_NAME)
+            this.threeDrawableId = this.runtime.renderer.createDrawable("pen")
             this.runtime.renderer.updateDrawableSkinId(
                 this.threeDrawableId,
                 this.threeSkinId,
