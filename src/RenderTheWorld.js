@@ -2358,6 +2358,7 @@ import {
                 },
             );
             this.scene.add(this.objects[name]);
+            this.render()
         }
 
         /**
@@ -2427,6 +2428,7 @@ import {
                 },
             );
             this.scene.add(this.objects[name]);
+            this.render()
         }
 
         /**
@@ -2493,6 +2495,7 @@ import {
                 },
             );
             this.scene.add(this.objects[name]);
+            this.render()
         }
 
         /**
@@ -2577,6 +2580,7 @@ import {
                             },
                         );
                         this.scene.add(this.objects[name]);
+                        this.render()
                     },
                 );
             });
@@ -2664,6 +2668,7 @@ import {
                     },
                 );
                 this.scene.add(this.objects[name]);
+                this.render()
             });
         }
 
@@ -2793,6 +2798,7 @@ import {
                 this.releaseDuplicates(args[`NAME_${i}`]);
                 i++;
             }
+            this.render()
         }
 
         rotationObject({ name, x, y, z }) {
@@ -2810,6 +2816,7 @@ import {
 
                     THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
+                this.render()
             } else {
                 return;
             }
@@ -2830,6 +2837,7 @@ import {
 
                     Cast.toNumber(z),
                 );
+                this.render()
             } else {
                 return;
             }
@@ -2850,6 +2858,7 @@ import {
 
                     Cast.toNumber(z),
                 );
+                this.render()
             } else {
                 return;
             }
@@ -2974,6 +2983,7 @@ import {
                 this.lights[name].castShadow = true;
             }
             this.scene.add(this.lights[name]); //在场景中添加光源
+            this.render()
         }
 
         makeDirectionalLight({ name, color, intensity, x, y, z, x2, y2, z2, YN }) {
@@ -3012,6 +3022,7 @@ import {
                 this.lights[name].castShadow = true;
             }
             this.scene.add(this.lights[name]); //在场景中添加光源
+            this.render()
         }
 
         setLightMapSize({ name, xsize, ysize }) {
@@ -3042,6 +3053,7 @@ import {
 
                     Cast.toNumber(z),
                 );
+                this.render()
             } else {
                 return;
             }
@@ -3080,6 +3092,7 @@ import {
                 }
                 i++;
             }
+            this.render()
         }
 
         /**
@@ -3097,6 +3110,7 @@ import {
             this.ambient_light.color = new THREE.Color(Cast.toNumber(color));
 
             this.ambient_light.intensity = Cast.toNumber(intensity);
+            this.render()
         }
 
         /**
@@ -3120,6 +3134,7 @@ import {
             );
 
             this.hemisphere_light.intensity = Cast.toNumber(intensity);
+            this.render()
         }
 
         /**
@@ -3142,6 +3157,7 @@ import {
 
                     Cast.toNumber(z),
                 );
+                this.render()
             }
         }
 
@@ -3165,6 +3181,7 @@ import {
 
                     THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
+                this.render()
             }
         }
 
@@ -3188,6 +3205,7 @@ import {
 
                     Cast.toNumber(z),
                 );
+                this.render()
             }
         }
 
@@ -3334,6 +3352,7 @@ import {
 
                 Cast.toNumber(far),
             );
+            this.render()
         }
 
         /**
@@ -3345,6 +3364,7 @@ import {
                 return "⚠️显示器未初始化！";
             }
             this.scene.fog = null;
+            this.render()
         }
 
         /**
@@ -3383,6 +3403,11 @@ import {
                     collaborator: "陈思翰 @ CCW",
                     collaboratorURL:
                         "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
+                },
+                {
+                    collaborator: "Fath11@Cocrea",
+                    collaboratorURL:
+                        "https://cocrea.world/@Fath11",
                 },
             ],
         },

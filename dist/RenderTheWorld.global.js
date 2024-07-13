@@ -27848,17 +27848,11 @@ void main() {
         this.animations = {};
         this.scratchCanvas = null;
         this.tc = null;
-        this.DRAWABLE_GROUP_NAME = "threejs";
-        this.DRAW_BEFORE = "pen";
-        let index = this.runtime.renderer._groupOrdering.indexOf(this.DRAW_BEFORE);
-        let copy = this.runtime.renderer._groupOrdering.slice();
-        copy.splice(index, 0, this.DRAWABLE_GROUP_NAME);
-        this.runtime.renderer.setLayerGroupOrdering(copy);
         this.threeSkinId = this.runtime.renderer._nextSkinId++;
         let SkinsClass = new Skins(this.runtime);
         this.threeSkin = new SkinsClass.CanvasSkin(this.threeSkinId, this.runtime.renderer);
         this.runtime.renderer._allSkins[this.threeSkinId] = this.threeSkin;
-        this.threeDrawableId = this.runtime.renderer.createDrawable(this.DRAWABLE_GROUP_NAME);
+        this.threeDrawableId = this.runtime.renderer.createDrawable("pen");
         this.runtime.renderer.updateDrawableSkinId(
           this.threeDrawableId,
           this.threeSkinId
@@ -29176,6 +29170,7 @@ void main() {
           }
         );
         this.scene.add(this.objects[name]);
+        this.render();
       }
       /**
        * 创建或重置球体
@@ -29227,6 +29222,7 @@ void main() {
           }
         );
         this.scene.add(this.objects[name]);
+        this.render();
       }
       /**
        * 创建或重置平面
@@ -29276,6 +29272,7 @@ void main() {
           }
         );
         this.scene.add(this.objects[name]);
+        this.render();
       }
       /**
        * 导入或重置OBJ模型
@@ -29342,6 +29339,7 @@ void main() {
                 }
               );
               this.scene.add(this.objects[name]);
+              this.render();
             }
           );
         });
@@ -29411,6 +29409,7 @@ void main() {
             }
           );
           this.scene.add(this.objects[name]);
+          this.render();
         });
       }
       /**
@@ -29519,6 +29518,7 @@ void main() {
           this.releaseDuplicates(args[`NAME_${i}`]);
           i++;
         }
+        this.render();
       }
       rotationObject({ name, x, y, z }) {
         if (!this.tc) {
@@ -29531,6 +29531,7 @@ void main() {
             MathUtils.degToRad(Cast.toNumber(y)),
             MathUtils.degToRad(Cast.toNumber(z))
           );
+          this.render();
         } else {
           return;
         }
@@ -29546,6 +29547,7 @@ void main() {
             Cast.toNumber(y),
             Cast.toNumber(z)
           );
+          this.render();
         } else {
           return;
         }
@@ -29561,6 +29563,7 @@ void main() {
             Cast.toNumber(y),
             Cast.toNumber(z)
           );
+          this.render();
         } else {
           return;
         }
@@ -29672,6 +29675,7 @@ void main() {
           this.lights[name].castShadow = true;
         }
         this.scene.add(this.lights[name]);
+        this.render();
       }
       makeDirectionalLight({ name, color, intensity, x, y, z, x2, y2, z2, YN }) {
         if (!this.tc) {
@@ -29701,6 +29705,7 @@ void main() {
           this.lights[name].castShadow = true;
         }
         this.scene.add(this.lights[name]);
+        this.render();
       }
       setLightMapSize({ name, xsize, ysize }) {
         if (!this.tc) {
@@ -29723,6 +29728,7 @@ void main() {
             Cast.toNumber(y),
             Cast.toNumber(z)
           );
+          this.render();
         } else {
           return;
         }
@@ -29756,6 +29762,7 @@ void main() {
           }
           i++;
         }
+        this.render();
       }
       /**
        * 设置环境光颜色
@@ -29769,6 +29776,7 @@ void main() {
         }
         this.ambient_light.color = new Color(Cast.toNumber(color));
         this.ambient_light.intensity = Cast.toNumber(intensity);
+        this.render();
       }
       /**
        * 设置环境光颜色
@@ -29788,6 +29796,7 @@ void main() {
           Cast.toNumber(groundColor)
         );
         this.hemisphere_light.intensity = Cast.toNumber(intensity);
+        this.render();
       }
       /**
        * 移动相机
@@ -29806,6 +29815,7 @@ void main() {
             Cast.toNumber(y),
             Cast.toNumber(z)
           );
+          this.render();
         }
       }
       /**
@@ -29825,6 +29835,7 @@ void main() {
             MathUtils.degToRad(Cast.toNumber(y)),
             MathUtils.degToRad(Cast.toNumber(z))
           );
+          this.render();
         }
       }
       /**
@@ -29844,6 +29855,7 @@ void main() {
             Cast.toNumber(y),
             Cast.toNumber(z)
           );
+          this.render();
         }
       }
       /**
@@ -29969,6 +29981,7 @@ void main() {
           Cast.toNumber(near),
           Cast.toNumber(far)
         );
+        this.render();
       }
       /**
        * 禁用雾效果
@@ -29978,6 +29991,7 @@ void main() {
           return "\u26A0\uFE0F\u663E\u793A\u5668\u672A\u521D\u59CB\u5316\uFF01";
         }
         this.scene.fog = null;
+        this.render();
       }
       /**
        * 处理颜色
@@ -30008,6 +30022,10 @@ void main() {
           {
             collaborator: "\u9648\u601D\u7FF0 @ CCW",
             collaboratorURL: "https://www.ccw.site/student/643bb84051bc32279f0c3fa0"
+          },
+          {
+            collaborator: "Fath11@Cocrea",
+            collaboratorURL: "https://cocrea.world/@Fath11"
           }
         ]
       },
