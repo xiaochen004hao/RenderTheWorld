@@ -14,16 +14,16 @@ Scratch 3D扩展.
 
 ### [原项目](https://github.com/xiaochen004hao/RenderTheWorld/tree/main/src)地址：
 > https://github.com/xiaochen004hao/RenderTheWorld/tree/main/src
-### [PR项目](https://github.com/xiaochen004hao/custom-extension/tree/main/RenderTheWorld)地址：
-> https://github.com/xiaochen004hao/custom-extension/tree/main/RenderTheWorld
+### [PR项目](https://github.com/Gandi-IDE/custom-extension/pull/269)地址：
+> https://github.com/Gandi-IDE/custom-extension/pull/269
 
-### 在这个PR的“文件更改”中有骨骼动画与相机控制的demo!!!
+
 
 </div>
 <div align="center"><h2>
 
 ```
-按照要求进行了更改 / 使用了凌提供的脚手架
+按照要求进行了更改 / 在背景角色之上创建了新的“层”，使其能够被画布和角色遮挡，功能性增加，兼容原版
 ```
 
 </h2></div>
@@ -91,16 +91,7 @@ API文档（正在完善）：https://learn.ccw.site/article/aa0cf6d0-6758-447a-
 
 <div align="center">
 
-## TOOD5: 我需要帮助！
-
-</div>
-
-**【必要的】** 谁能教教我有关渲染层的相关技术吗（就像TurboWarp的Simple3D一样创建一个自己的渲染层，让画笔或角色都能对其影响；或者像媒体助手一样？）。  
-同时，对于渲染层的返回，如何“返回”一个canvas的内容？  
-
-【挺重要的】如何创建像lpp中“函数”积木一样的“内联块(InlineBlock)”？这可以实现一种更加用户可控、积木作用明了的加载材质的方法！  
-​  
-
+​ 
 <div align="center">
 
 # 结尾
