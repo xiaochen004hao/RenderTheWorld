@@ -911,6 +911,7 @@ import {
                 this
             );
             this.is_listener = false;
+            this._init_porject_time = 0;
 
             // 兼容性
             this.isWebglAvailable = false;
@@ -2194,6 +2195,7 @@ import {
          * @param {string} args.Anti_Aliasing
          */
         init({ color, sizex, sizey, Anti_Aliasing }) {
+            this._init_porject_time = new Date().getTime();
             const _draw = this.runtime.renderer.draw;
             // 将原来的大小自适应删掉就能解决黑屏
             // const _resize = this.runtime.renderer.resize;
@@ -2336,6 +2338,7 @@ import {
                 });
 
                 this.runtime.on("PROJECT_STOP_ALL", () => {
+                    this._init_porject_time = 0;
                     console.log(chen_RenderTheWorld_extensionId + ": Stopping renders");
                     this.renderer.setAnimationLoop(null);
                     this.scene.traverse((child) => {
@@ -2416,6 +2419,7 @@ import {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
+            let init_porject_time = this._init_porject_time;  // 解决快速点击多次绿旗，模型重复添加问题
             // 名称
 
             name = Cast.toString(name);
@@ -2457,7 +2461,7 @@ import {
             if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
-            this.runtime.startHatsWithParams(
+            let r = this.runtime.startHatsWithParams(
                 chen_RenderTheWorld_extensionId + "_objectLoadingCompleted",
                 {
                     parameters: {
@@ -2465,8 +2469,13 @@ import {
                     },
                 },
             );
-            this.scene.add(this.objects[name]);
-            this.render()
+            r && r.forEach(((e) => {
+                this.runtime.sequencer.stepThread(e);
+            }));
+            if (init_porject_time == this._init_porject_time) {
+                this.scene.add(this.objects[name]);
+                this.render()
+            }
         }
 
         /**
@@ -2488,6 +2497,7 @@ import {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
+            let init_porject_time = this._init_porject_time;
             // 名称
 
             name = Cast.toString(name);
@@ -2527,7 +2537,7 @@ import {
             if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
-            this.runtime.startHatsWithParams(
+            let r = this.runtime.startHatsWithParams(
                 chen_RenderTheWorld_extensionId + "_objectLoadingCompleted",
                 {
                     parameters: {
@@ -2535,8 +2545,13 @@ import {
                     },
                 },
             );
-            this.scene.add(this.objects[name]);
-            this.render()
+            r && r.forEach(((e) => {
+                this.runtime.sequencer.stepThread(e);
+            }));
+            if (init_porject_time == this._init_porject_time) {
+                this.scene.add(this.objects[name]);
+                this.render()
+            }
         }
 
         /**
@@ -2557,6 +2572,7 @@ import {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
+            let init_porject_time = this._init_porject_time;
             // 名称
 
             name = Cast.toString(name);
@@ -2594,7 +2610,7 @@ import {
             if (Cast.toString(YN2) == "true") {
                 this.objects[name].receiveShadow = true;
             }
-            this.runtime.startHatsWithParams(
+            let r = this.runtime.startHatsWithParams(
                 chen_RenderTheWorld_extensionId + "_objectLoadingCompleted",
                 {
                     parameters: {
@@ -2602,8 +2618,13 @@ import {
                     },
                 },
             );
-            this.scene.add(this.objects[name]);
-            this.render()
+            r && r.forEach(((e) => {
+                this.runtime.sequencer.stepThread(e);
+            }));
+            if (init_porject_time == this._init_porject_time) {
+                this.scene.add(this.objects[name]);
+                this.render()
+            }
         }
 
         /**
@@ -2635,6 +2656,7 @@ import {
             if (_filelist.indexOf(mtlfile) == -1) {
                 return "⚠️MTL文件不存在！";
             }
+            let init_porject_time = this._init_porject_time;
             // 名称
 
             name = Cast.toString(name);
@@ -2678,7 +2700,7 @@ import {
                                 }
                             });
                         }
-                        this.runtime.startHatsWithParams(
+                        let r = this.runtime.startHatsWithParams(
                             chen_RenderTheWorld_extensionId +
                             "_objectLoadingCompleted",
                             {
@@ -2687,8 +2709,13 @@ import {
                                 },
                             },
                         );
-                        this.scene.add(this.objects[name]);
-                        this.render()
+                        r && r.forEach(((e) => {
+                            this.runtime.sequencer.stepThread(e);
+                        }));
+                        if (init_porject_time == this._init_porject_time) {
+                            this.scene.add(this.objects[name]);
+                            this.render()
+                        }
                     },
                 );
             });
@@ -2720,6 +2747,7 @@ import {
             if (_filelist.indexOf(gltffile) == -1) {
                 return "⚠️GLTF文件不存在！";
             }
+            let init_porject_time = this._init_porject_time;
             // 名称
 
             name = Cast.toString(name);
@@ -2767,7 +2795,7 @@ import {
                         }
                     });
                 }
-                this.runtime.startHatsWithParams(
+                let r = this.runtime.startHatsWithParams(
                     chen_RenderTheWorld_extensionId + "_objectLoadingCompleted",
                     {
                         parameters: {
@@ -2775,8 +2803,13 @@ import {
                         },
                     },
                 );
-                this.scene.add(this.objects[name]);
-                this.render()
+                r && r.forEach(((e) => {
+                    this.runtime.sequencer.stepThread(e);
+                }));
+                if (init_porject_time == this._init_porject_time) {
+                    this.scene.add(this.objects[name]);
+                    this.render()
+                }
             });
         }
 
