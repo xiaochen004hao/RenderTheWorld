@@ -688,7 +688,6 @@ import {
         Cast,
         translate,
         extensions,
-        runtime,
     } = Scratch;
 
     function hijack(fn) {
@@ -730,12 +729,33 @@ import {
         return virtualMachine;
     }
 
-    const vm = getVM(Scratch.runtime);
+    const vm = Scratch.vm ?? getVM(runtime);
+    const runtime = vm.runtime ?? Scratch.runtime;
 
     const chen_RenderTheWorld_extensionId = "RenderTheWorld";
 
     // 定义用于存储原始函数的属性名
     const PATCHES_ID = "__patches_" + chen_RenderTheWorld_extensionId;
+
+    /**
+     * 来自系统工具
+     * 运行环境
+     * prod：不在编辑器内
+     * dev：在编辑器内
+     */
+    const is_see_inside = () => {
+        const ur1 = window.location.pathname;
+        // /gandi
+        // ^^^^^^
+        // /gandi/project
+        // ^^^^^^-
+        const rege = /\/(?:gandi|creator)(?:\/|$)/;
+        //            \/\_______________/\______/
+        //   “/”部分--'         |         |
+        //    gandi或者creator--'         |
+        //               “/”或者文本末尾--'
+        return rege.test(ur1);
+    }
 
     // 定义patch函数，用于修改对象的方法
     const patch = (obj, functions) => {
@@ -1028,10 +1048,13 @@ import {
             hackFun(_runtime);
 
             // 注册可拓展积木
-            setExpandableBlocks(
-                this.runtime,
-                this
-            );
+            if (is_see_inside() === 'dev') {
+                setExpandableBlocks(
+                    this.runtime,
+                    this
+                );
+            }
+            
             this.is_listener = false;
             this._init_porject_time = 0;
 
