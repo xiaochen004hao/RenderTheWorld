@@ -14,6 +14,30 @@ import {
 
 (function (Scratch) {
     "use strict";
+    function addRTWStyle(newStyle) {
+        let _RTWStyle = !(window.RTWStyle);
+        window.RTWStyle = document.getElementById('RTWStyle');
+    
+        if (!window.RTWStyle) {
+            window.RTWStyle = document.createElement('style');
+            window.RTWStyle.type = 'text/css';
+            window.RTWStyle.id = 'RTWStyle';
+            if (_RTWStyle) document.getElementsByTagName('head')[0].appendChild(window.RTWStyle);
+        }
+        window.RTWStyle.childNodes.forEach((child) => {
+            window.RTWStyle.removeChild(child);
+        });
+        window.RTWStyle.appendChild(document.createTextNode(newStyle));
+    }
+
+    addRTWStyle(`
+        .RTW-image {
+            cursor: pointer;
+        }
+        .RTW-image:hover {
+            filter: brightness(130%);
+        }
+    `);
 
     const hackFun = (runtime) => {
         if (!runtime || hackFun.hacked) return;
@@ -79,6 +103,7 @@ import {
         };
         // 创建按钮
         const createButtons = (Blockly) => {
+            
             // 按钮
             class FieldButton extends Blockly.FieldImage {
                 constructor(src) {
@@ -88,6 +113,7 @@ import {
                 init() {
                     // Field has already been initialized once.
                     super.init();
+                    this.getSvgRoot().getElementsByTagName("image")[0].classList.add("RTW-image");
                     if (!this.initialized) {
                         // 初始化按钮
                         Blockly.bindEventWithChecks_(
@@ -106,6 +132,7 @@ import {
                             this.handleClick.bind(this),
                         );
                         // 绑定上这个按钮点击事件
+                        
                     }
                     this.initialized = true;
                 }
@@ -130,11 +157,13 @@ import {
                 constructor() {
                     super(plusImage);
                 }
-                onclick() {
-                    const block = this.sourceBlock_;
-                    // 增加积木数量改变
-                    block.itemCount_ += 1;
-                    block.updateShape(); // 更新
+                onclick(e) {
+                    if (e.button == 0){
+                        const block = this.sourceBlock_;
+                        // 增加积木数量改变
+                        block.itemCount_ += 1;
+                        block.updateShape(); // 更新
+                    }
                 }
             }
             // - 按钮
@@ -142,16 +171,18 @@ import {
                 constructor() {
                     super(minusImage);
                 }
-                onclick() {
-                    // 获取这个 field 的积木
-                    const block = this.sourceBlock_;
-                    // 增加积木数量改变
-                    block.itemCount_ -= 1;
-                    if (block.itemCount_ < 0) {
-                        // 不能有 -1 个参数
-                        block.itemCount_ = 0;
+                onclick(e) {
+                    if (e.button == 0){
+                        // 获取这个 field 的积木
+                        const block = this.sourceBlock_;
+                        // 增加积木数量改变
+                        block.itemCount_ -= 1;
+                        if (block.itemCount_ < 0) {
+                            // 不能有 -1 个参数
+                            block.itemCount_ = 0;
+                        }
+                        block.updateShape(); // 更新
                     }
-                    block.updateShape(); // 更新
                 }
             }
             // 图片
@@ -238,8 +269,8 @@ import {
                                     type === "substack"
                                         ? this.appendStatementInput(inputKeyID)
                                         : type === "list" || type === "text"
-                                            ? this.appendDummyInput(inputKeyID)
-                                            : this.appendValueInput(inputKeyID);
+                                          ? this.appendDummyInput(inputKeyID)
+                                          : this.appendValueInput(inputKeyID);
                                 if (type === "text") {
                                     input.appendField("text");
                                 } else if (type === "boolean") {
@@ -417,8 +448,8 @@ import {
                                             ].fieldRow[0].setText(text);
                                     } else {
                                         let flag1 =
-                                            args[1] !== 1 &&
-                                            args[1] !== this.itemCount_,
+                                                args[1] !== 1 &&
+                                                args[1] !== this.itemCount_,
                                             index = inputKeys.indexOf(args[0]),
                                             flag2 =
                                                 index > 0 &&
@@ -494,7 +525,7 @@ import {
                                         !this.ARGS.includes(name) &&
                                         this.expandableArgs[argName] &&
                                         this.expandableArgs[argName][0] !==
-                                        "text"
+                                            "text"
                                     ) {
                                         target.blocks.deleteBlock(
                                             block.inputs[name].shadow,
@@ -568,6 +599,7 @@ import {
         };
         const { id, blocks: blocksInfo } = extension.getInfo();
         let expandableBlocks = {};
+        
         blocksInfo.forEach((block) => {
             if (block.expandableBlock)
                 expandableBlocks[`${id}_${block.opcode}`] = {
@@ -616,54 +648,70 @@ import {
     };
 
     /*
-    * By: Xeltalliv
-    * Link: https://github.com/Xeltalliv/extensions/blob/webgl2-dev/extensions/webgl2.js
-    *
-    * Modified by: Fath11
-    * Link: https://github.com/fath11
-    *
-    * Please keep this comment if you wanna use this code :3
-    */
+     * By: Xeltalliv
+     * Link: https://github.com/Xeltalliv/extensions/blob/webgl2-dev/extensions/webgl2.js
+     *
+     * Modified by: Fath11
+     * Link: https://github.com/fath11
+     *
+     * Please keep this comment if you wanna use this code :3
+     */
     class Skins {
         constructor(runtime) {
-            this.runtime = runtime
-            const Skin = this.runtime.renderer.exports.Skin
+            this.runtime = runtime;
+            const Skin = this.runtime.renderer.exports.Skin;
 
             class CanvasSkin extends Skin {
                 constructor(id, renderer) {
-                    super(id, renderer)
-                    this.gl = renderer._gl
-                    const texture = this.gl.createTexture()
-                    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-                    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
-                    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
-                    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST)
-                    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST)
+                    super(id, renderer);
+                    this.gl = renderer._gl;
+                    const texture = this.gl.createTexture();
+                    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+                    this.gl.texParameteri(
+                        this.gl.TEXTURE_2D,
+                        this.gl.TEXTURE_WRAP_S,
+                        this.gl.CLAMP_TO_EDGE,
+                    );
+                    this.gl.texParameteri(
+                        this.gl.TEXTURE_2D,
+                        this.gl.TEXTURE_WRAP_T,
+                        this.gl.CLAMP_TO_EDGE,
+                    );
+                    this.gl.texParameteri(
+                        this.gl.TEXTURE_2D,
+                        this.gl.TEXTURE_MIN_FILTER,
+                        this.gl.NEAREST,
+                    );
+                    this.gl.texParameteri(
+                        this.gl.TEXTURE_2D,
+                        this.gl.TEXTURE_MAG_FILTER,
+                        this.gl.NEAREST,
+                    );
                     //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
                     //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0,255,0,255]));
-                    this._texture = texture
-                    this._rotationCenter = [320, 180]
-                    this._size = [640, 360]
+                    this._texture = texture;
+                    this._rotationCenter = [320, 180];
+                    this._size = [640, 360];
                 }
                 dispose() {
                     if (this._texture) {
-                        this.renderer.gl.deleteTexture(this._texture)
-                        this._texture = null
+                        this.renderer.gl.deleteTexture(this._texture);
+                        this._texture = null;
                     }
-                    super.dispose()
+                    super.dispose();
                 }
                 set size(value) {
-                    this._size = value
-                    this._rotationCenter = [value[0] / 2, value[1] / 2]
+                    this._size = value;
+                    this._rotationCenter = [value[0] / 2, value[1] / 2];
                 }
                 get size() {
-                    return this._size
+                    return this._size;
                 }
                 getTexture(scale) {
-                    return this._texture || super.getTexture()
+                    return this._texture || super.getTexture();
                 }
                 setContent(textureData) {
-                    this.gl.bindTexture(this.gl.TEXTURE_2D, this._texture)
+                    this.gl.bindTexture(this.gl.TEXTURE_2D, this._texture);
                     this.gl.texImage2D(
                         this.gl.TEXTURE_2D,
                         0,
@@ -671,59 +719,55 @@ import {
                         this.gl.RGBA,
                         this.gl.UNSIGNED_BYTE,
                         textureData,
-                    )
-                    this.emit(Skin.Events.WasAltered)
+                    );
+                    this.emit(Skin.Events.WasAltered);
                 }
             }
 
-            this.CanvasSkin = CanvasSkin
+            this.CanvasSkin = CanvasSkin;
         }
     }
     //End of Skins, Please keep this comment if you wanna use this code :3
 
-    const {
-        ArgumentType,
-        BlockType,
-        TargetType,
-        Cast,
-        translate,
-        extensions,
-    } = Scratch;
+    const { ArgumentType, BlockType, TargetType, Cast, translate, extensions } =
+        Scratch;
 
     function hijack(fn) {
-        const _orig = Function.prototype.apply
+        const _orig = Function.prototype.apply;
         /**
          * Hijack the Function.prototype.apply function.
          * @param thisArg
          * @returns thisArg.
          */
         Function.prototype.apply = function (thisArg) {
-            return thisArg
-        }
-        const result = fn()
-        Function.prototype.apply = _orig
-        return result
+            return thisArg;
+        };
+        const result = fn();
+        Function.prototype.apply = _orig;
+        return result;
     }
     function getVM(runtime) {
         let virtualMachine;
 
-        if (Array.isArray(runtime._events['QUESTION'])) {
-            for (const value of runtime._events['QUESTION']) {
+        if (Array.isArray(runtime._events["QUESTION"])) {
+            for (const value of runtime._events["QUESTION"]) {
                 const v = hijack(value);
                 if (v && v.props && v.props.vm) {
                     virtualMachine = v.props.vm;
                     break;
                 }
             }
-        } else if (runtime._events['QUESTION']) {
-            const v = hijack(runtime._events['QUESTION']);
+        } else if (runtime._events["QUESTION"]) {
+            const v = hijack(runtime._events["QUESTION"]);
             if (v && v.props && v.props.vm) {
                 virtualMachine = v.props.vm;
             }
         }
 
         if (!virtualMachine) {
-            throw new Error('lpp cannot get Virtual Machine instance.');
+            throw new Error(
+                "RenderTheWorld cannot get Virtual Machine instance.",
+            );
         }
 
         return virtualMachine;
@@ -732,11 +776,11 @@ import {
         let Blockly;
         if (vm._events["EXTENSION_ADDED"] instanceof Array) {
             for (const value of vm._events["EXTENSION_ADDED"]) {
-            const v = hijack(value);
-            if (v?.ScratchBlocks) {
-                Blockly = v?.ScratchBlocks;
-                break;
-            }
+                const v = hijack(value);
+                if (v?.ScratchBlocks) {
+                    Blockly = v?.ScratchBlocks;
+                    break;
+                }
             }
         } else if (vm._events["EXTENSION_ADDED"]) {
             Blockly = hijack(vm._events["EXTENSION_ADDED"])?.ScratchBlocks;
@@ -770,7 +814,7 @@ import {
         //    gandi或者creator--'         |
         //               “/”或者文本末尾--'
         return rege.test(ur1);
-    }
+    };
 
     // 定义patch函数，用于修改对象的方法
     const patch = (obj, functions) => {
@@ -783,17 +827,18 @@ import {
             if (original) {
                 // 替换原函数，增加自定义逻辑
                 obj[name] = function (...args) {
-                    const callOriginal = (...args) => original.call(this, ...args);
+                    const callOriginal = (...args) =>
+                        original.call(this, ...args);
                     return functions[name].call(this, callOriginal, ...args);
                 };
             } else {
                 // 如果原函数不存在，直接定义新函数
                 obj[name] = function (...args) {
-                    return functions[name].call(this, () => { }, ...args);
-                }
+                    return functions[name].call(this, () => {}, ...args);
+                };
             }
         }
-    }
+    };
 
     // 使用patch函数修改runtime的visualReport方法，增加自定义逻辑
     patch(runtime.constructor.prototype, {
@@ -801,16 +846,21 @@ import {
             if (vm.editingTarget) {
                 const block = vm.editingTarget.blocks.getBlock(blockId);
                 // 如果当前块是Inline Blocks且不是顶层块，则不执行后续逻辑
-                if (block.opcode === (chen_RenderTheWorld_extensionId + "_makeMaterial") && !block.topLevel) return;
+                if (
+                    block.opcode ===
+                        chen_RenderTheWorld_extensionId + "_makeMaterial" &&
+                    !block.topLevel
+                )
+                    return;
             }
             // 调用原始函数，继续执行后续逻辑
             original(blockId, value);
-        }
+        },
     });
 
     /** @typedef {string|number|boolean} SCarg 来自Scratch圆形框的参数，虽然这个框可能只能输入数字，但是可以放入变量，因此有可能获得数字、布尔和文本（极端情况下还有 null 或 undefined，需要同时处理 */
-    /** 放在外面来装逼 */
-    translate.setup({
+
+    const translate_setup = {
         "zh-cn": {
             "RenderTheWorld.name": "渲染世界",
             "RenderTheWorld.fileListEmpty": "没有文件",
@@ -828,7 +878,6 @@ import {
                 "初始化并设置背景颜色为[color] 大小[sizex]x[sizey]y [Anti_Aliasing]",
             "RenderTheWorld.Anti_Aliasing.enable": "启用抗锯齿",
             "RenderTheWorld.Anti_Aliasing.disable": "禁用抗锯齿",
-            "RenderTheWorld.render": "渲染场景",
             "RenderTheWorld.color_RGB": "RGB颜色: [R] [G] [B]",
             "RenderTheWorld.tools": "🛠️工具",
             "RenderTheWorld.YN.true": "能",
@@ -854,14 +903,19 @@ import {
             "RenderTheWorld.importGLTF":
                 "导入或重置GLTF模型: [name] GLTF模型文件: [gltffile] 位置: x[x] y[y] z[z] [YN]投射阴影 [YN2]被投射阴影",
 
-            "RenderTheWorld.cubeModel": "<长方体> 长[a] 宽[b] 高[h] 材质[material]",
-            "RenderTheWorld.sphereModel": "<球体> 半径[radius] 水平分段数[w] 垂直分段数[h] 材质[material]",
+            "RenderTheWorld.cubeModel":
+                "<长方体> 长[a] 宽[b] 高[h] 材质[material]",
+            "RenderTheWorld.sphereModel":
+                "<球体> 半径[radius] 水平分段数[w] 垂直分段数[h] 材质[material]",
             "RenderTheWorld.planeModel": "<平面> 长[a] 宽[b] 材质[material]",
-            "RenderTheWorld.objModel": "<OBJ模型> OBJ文件[objfile] MTL文件[mtlfile]",
+            "RenderTheWorld.objModel":
+                "<OBJ模型> OBJ文件[objfile] MTL文件[mtlfile]",
             "RenderTheWorld.gltfModel": "<GLTF模型> GLTF文件[gltffile]",
 
-            "RenderTheWorld.importModel": "导入或重置模型: 名称[name] 模型[model]",
-            "RenderTheWorld.shadowSettings": "设置模型 [name] 的阴影设置: [YN]投射阴影 [YN2]被投射阴影",
+            "RenderTheWorld.importModel":
+                "导入或重置: 名称[name] 对象[model]",
+            "RenderTheWorld.shadowSettings":
+                "设置 [name] 的阴影设置: [YN]投射阴影 [YN2]被投射阴影",
             "RenderTheWorld.makeMaterial": "创建材质 [material]",
             "RenderTheWorld.setMaterialColor": "设置当前材质颜色 [color]",
             "RenderTheWorld.setMaterialFog": "设置当前材质 [YN] 受雾效果影响",
@@ -876,17 +930,17 @@ import {
             "RenderTheWorld.getAnimation": "获取模型: [name] 的所有动画",
 
             "RenderTheWorld.rotationObject":
-                "将物体: [name] 旋转: x[x] y[y] z[z]",
+                "将: [name] 旋转: x[x] y[y] z[z]",
             "RenderTheWorld.moveObject":
-                "将物体: [name] 移动到: x[x] y[y] z[z]",
-            "RenderTheWorld.scaleObject": "将物体: [name] 缩放: x[x] y[y] z[z]",
+                "将: [name] 移动到: x[x] y[y] z[z]",
+            "RenderTheWorld.scaleObject": "将: [name] 缩放: x[x] y[y] z[z]",
 
-            "RenderTheWorld.getObjectPos": "获取物体: [name] 的[xyz]坐标",
+            "RenderTheWorld.getObjectPos": "获取: [name] 的[xyz]坐标",
             "RenderTheWorld.getObjectRotation":
                 "获取物体: [name] [xyz]的旋转角度",
             "RenderTheWorld.getObjectScale": "获取物体: [name] [xyz]的缩放",
 
-            "RenderTheWorld.deleteObject": "删除物体: [name]",
+            "RenderTheWorld.deleteObject": "删除: [name]",
 
             "RenderTheWorld.xyz.x": "x轴",
             "RenderTheWorld.xyz.y": "y轴",
@@ -901,6 +955,12 @@ import {
                 "创建或重置点光源: [name] 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 衰减量[decay] [YN]投射阴影",
             "RenderTheWorld.makeDirectionalLight":
                 "创建或重置方向光: [name] 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 指向: x[x2] y[y2] z[z2] [YN]投射阴影",
+            
+            "RenderTheWorld.pointLight":
+                "<点光源> 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 衰减量[decay] [YN]投射阴影",
+            "RenderTheWorld.directionalLight":
+                "<方向光> 颜色: [color] 光照强度: [intensity] 位置: x[x] y[y] z[z] 指向: x[x2] y[y2] z[z2] [YN]投射阴影",
+            
             "RenderTheWorld.setDirectionalLightShawdowCamera":
                 "设置方向光: [name] 的阴影投射范围 left: [left] right: [right] top: [top] bottom: [bottom]",
             "RenderTheWorld.setLightMapSize":
@@ -930,94 +990,92 @@ import {
             "RenderTheWorld.disableFogEffect": "禁用雾效果",
 
             // tooltips
-            "RenderTheWorld.objectLoadingCompleted.tooltip": "当对象加载完成时触发",
+            "RenderTheWorld.objectLoadingCompleted.tooltip":
+                "当对象加载完成时触发",
             "RenderTheWorld.set3dState.tooltip": "设置3D显示器是否显示",
             "RenderTheWorld.get3dState.tooltip": "判断​3D显示器是否显示",
 
             "RenderTheWorld.init.tooltip":
                 "初始化扩展模块，设置背景颜色、渲染大小和是否开启抗锯齿",
-            "RenderTheWorld.render.tooltip": "渲染当前帧",
             "RenderTheWorld.color_RGB.tooltip": "RGB颜色",
-            "RenderTheWorld.isWebGLAvailable.tooltip": "兼容性检查",
+            "RenderTheWorld.isWebGLAvailable.tooltip": "WebGL兼容性检查",
             "RenderTheWorld._isWebGLAvailable.tooltip": "当前设备支持WebGL吗?",
 
-            "RenderTheWorld.makeCube.tooltip":
-                "创建或重置长方体",
-            "RenderTheWorld.makeSphere.tooltip":
-                "创建或重置球体",
-            "RenderTheWorld.makePlane.tooltip":
-                "创建或重置平面",
-            "RenderTheWorld.importOBJ.tooltip":
-                "导入或重置OBJ模型",
-            "RenderTheWorld.importGLTF.tooltip":
-                "导入或重置GLTF模型",
+            "RenderTheWorld.makeCube.tooltip": "创建或重置长方体",
+            "RenderTheWorld.makeSphere.tooltip": "创建或重置球体",
+            "RenderTheWorld.makePlane.tooltip": "创建或重置平面",
+            "RenderTheWorld.importOBJ.tooltip": "导入或重置OBJ模型",
+            "RenderTheWorld.importGLTF.tooltip": "导入或重置GLTF模型",
 
-            "RenderTheWorld.cubeModel.tooltip": "创建一个长方体，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.sphereModel.tooltip": "创建一个球体，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.planeModel.tooltip": "创建一个平面，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.objModel.tooltip": "导入OBJ模型，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.gltfModel.tooltip": "导入GLTF模型，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
+            "RenderTheWorld.cubeModel.tooltip":
+                "创建一个长方体，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.sphereModel.tooltip":
+                "创建一个球体，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.planeModel.tooltip":
+                "创建一个平面，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.objModel.tooltip":
+                "导入OBJ模型，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.gltfModel.tooltip":
+                "导入GLTF模型，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.pointLight.tooltip":
+                "创建一个点光源，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.directionalLight.tooltip":
+                "创建一个平行光，返回一个模型对象，可直接在“导入或重置”积木中使用",
 
-            "RenderTheWorld.importModel.tooltip": "导入或重置模型",
-            "RenderTheWorld.shadowSettings.tooltip": "设置模型的阴影设置",
-            "RenderTheWorld.makeMaterial.tooltip": "创建一个材质，可直接在“导入或重置模型”积木中使用，如非必要，推荐多个模型共用一个材质",
-            "RenderTheWorld.setMaterialColor.tooltip": "设置当前材质颜色，在“创建一个材质”积木中使用",
-            "RenderTheWorld.setMaterialFog.tooltip": "设置当前材质是否受雾效果影响，在“创建一个材质”积木中使用",
-            "RenderTheWorld.return.tooltip": "材质创建完成，必须在“创建一个材质”积木中使用",
+            "RenderTheWorld.importModel.tooltip": "导入或重置对象",
+            "RenderTheWorld.shadowSettings.tooltip": "设置对象的阴影设置",
+            "RenderTheWorld.makeMaterial.tooltip":
+                "创建一个材质，可直接在“导入或重置”积木中使用，如非必要，推荐多个模型共用一个材质",
+            "RenderTheWorld.setMaterialColor.tooltip":
+                "设置当前材质颜色，在“创建一个材质”积木中使用",
+            "RenderTheWorld.setMaterialFog.tooltip":
+                "设置当前材质是否受雾效果影响，在“创建一个材质”积木中使用",
+            "RenderTheWorld.return.tooltip":
+                "材质创建完成，必须在“创建一个材质”积木中使用",
 
-            "RenderTheWorld.playAnimation.tooltip":
-                "启动模型的动画",
-            "RenderTheWorld.stopAnimation.tooltip":
-                "结束模型的动画",
-            "RenderTheWorld.updateAnimation.tooltip":
-                "推进模型的动画并更新",
-            "RenderTheWorld.getAnimation.tooltip": "获取模型的所有动画，返回一个字符串化列表",
+            "RenderTheWorld.playAnimation.tooltip": "启动模型的动画",
+            "RenderTheWorld.stopAnimation.tooltip": "结束模型的动画",
+            "RenderTheWorld.updateAnimation.tooltip": "推进模型的动画并更新",
+            "RenderTheWorld.getAnimation.tooltip":
+                "获取模型的所有动画，返回一个字符串化列表",
 
-            "RenderTheWorld.rotationObject.tooltip":
-                "旋转物体",
-            "RenderTheWorld.moveObject.tooltip":
-                "移动物体",
+            "RenderTheWorld.rotationObject.tooltip": "旋转物体",
+            "RenderTheWorld.moveObject.tooltip": "移动物体",
             "RenderTheWorld.scaleObject.tooltip": "缩放物体",
 
-            "RenderTheWorld.getObjectPos.tooltip": "获取物体的任意xyz坐标",
+            "RenderTheWorld.getObjectPos.tooltip": "获取对象的任意xyz坐标",
             "RenderTheWorld.getObjectRotation.tooltip":
-                "获取物体任意xyz轴的旋转角度",
-            "RenderTheWorld.getObjectScale.tooltip": "获取物体任意xyz轴的缩放",
+                "获取对象任意xyz轴的旋转角度",
+            "RenderTheWorld.getObjectScale.tooltip": "获取对象任意xyz轴的缩放",
 
-            "RenderTheWorld.deleteObject.tooltip": "删除物体",
+            "RenderTheWorld.deleteObject.tooltip": "删除对象",
 
-            "RenderTheWorld.setAmbientLightColor.tooltip":
-                "设置环境光颜色",
+            "RenderTheWorld.setAmbientLightColor.tooltip": "设置环境光颜色",
             "RenderTheWorld.setHemisphereLightColor.tooltip":
                 "设置半球光天空颜色",
-            "RenderTheWorld.makePointLight.tooltip":
-                "创建或重置点光源",
-            "RenderTheWorld.makeDirectionalLight.tooltip":
-                "创建或重置方向光",
             "RenderTheWorld.setDirectionalLightShawdowCamera.tooltip":
                 "设置方向光的阴影投射范围",
             "RenderTheWorld.setLightMapSize.tooltip":
                 "设置光源的阴影纹理分辨率",
-            "RenderTheWorld.moveLight.tooltip": "移动光源",
-            "RenderTheWorld.getLightPos.tooltip": "获取光源任意xyz的坐标",
-            "RenderTheWorld.deleteLight.tooltip": "删除光源",
 
             "RenderTheWorld.moveCamera.tooltip": "移动相机",
             "RenderTheWorld.rotationCamera.tooltip": "旋转相机",
             "RenderTheWorld.cameraLookAt.tooltip": "让相机面向一个坐标",
             "RenderTheWorld.getCameraPos.tooltip": "获取相机任意xyz的坐标",
-            "RenderTheWorld.getCameraRotation.tooltip": "获取相机任意xyz的旋转角度",
-            "RenderTheWorld.setControlState.tooltip": "设置鼠标控制相机模式是否开启",
-            "RenderTheWorld.mouseCanControlCamera.tooltip": "判断鼠标控制相机模式是否开启",
+            "RenderTheWorld.getCameraRotation.tooltip":
+                "获取相机任意xyz的旋转角度",
+            "RenderTheWorld.setControlState.tooltip":
+                "设置鼠标控制相机模式是否开启",
+            "RenderTheWorld.mouseCanControlCamera.tooltip":
+                "判断鼠标控制相机模式是否开启",
             "RenderTheWorld.controlCamera.tooltip":
-                "设置鼠标控制相机模型能否右键拖拽、能否中键缩放、能否左键旋转",
+                "设置鼠标控制相机模式能否右键拖拽、能否中键缩放、能否左键旋转",
             "RenderTheWorld.setControlCameraDamping.tooltip":
-                "设置鼠标控制相机模型的视口旋转是否启用惯性",
+                "设置鼠标控制相机模式的视口旋转是否启用惯性",
             "RenderTheWorld.setControlCameraDampingNum.tooltip":
-                "设置鼠标控制相机模型的视口旋转惯性",
+                "设置鼠标控制相机模式的视口旋转惯性",
 
-            "RenderTheWorld.enableFogEffect.tooltip":
-                "启用雾效果并设置雾颜色",
+            "RenderTheWorld.enableFogEffect.tooltip": "启用雾效果并设置雾颜色",
             "RenderTheWorld.disableFogEffect.tooltip": "禁用雾效果",
         },
         en: {
@@ -1039,7 +1097,6 @@ import {
                 "init and set the background color to [color] size:[sizex]x[sizey]y [Anti_Aliasing]",
             "RenderTheWorld.Anti_Aliasing.enable": "enable anti aliasing",
             "RenderTheWorld.Anti_Aliasing.disable": "disable anti aliasing",
-            "RenderTheWorld.render": "render",
             "RenderTheWorld.color_RGB": "RGB color: [R] [G] [B]",
             "RenderTheWorld.tools": "🛠️Tools",
             "RenderTheWorld.YN.true": "can",
@@ -1066,17 +1123,25 @@ import {
             "RenderTheWorld.importGLTF":
                 "reset or make a GLTF Model: [name] GLTF file: [gltffile] position: x[x] y[y] z[z] [YN]cast shadows [YN2]shadow cast",
 
-            "RenderTheWorld.cubeModel": "<cube> length[a] width[b] height[h] material[material]",
-            "RenderTheWorld.sphereModel": "<sphere> radius[radius] widthSegments[w] heightSegments[h] material[material]",
-            "RenderTheWorld.planeModel": "<plane> length[a] width[b] material[material]",
-            "RenderTheWorld.objModel": "<OBJ model> OBJ file[objfile] MTL file[mtlfile]",
+            "RenderTheWorld.cubeModel":
+                "<cube> length[a] width[b] height[h] material[material]",
+            "RenderTheWorld.sphereModel":
+                "<sphere> radius[radius] widthSegments[w] heightSegments[h] material[material]",
+            "RenderTheWorld.planeModel":
+                "<plane> length[a] width[b] material[material]",
+            "RenderTheWorld.objModel":
+                "<OBJ model> OBJ file[objfile] MTL file[mtlfile]",
             "RenderTheWorld.gltfModel": "<GLTF model> GLTF file[gltffile]",
 
-            "RenderTheWorld.importModel": "reset or make a Model: name[name] model[model]",
-            "RenderTheWorld.shadowSettings": "set model [name] shadow settings: [YN]cast shadows [YN2]shadow cast",
+            "RenderTheWorld.importModel":
+                "reset or make: name[name] object[model]",
+            "RenderTheWorld.shadowSettings":
+                "set [name] shadow settings: [YN]cast shadows [YN2]shadow cast",
             "RenderTheWorld.makeMaterial": "make material [material]",
-            "RenderTheWorld.setMaterialColor": "set current material color [color]",
-            "RenderTheWorld.setMaterialFog": "set current material [YN] affected fog",
+            "RenderTheWorld.setMaterialColor":
+                "set current material color [color]",
+            "RenderTheWorld.setMaterialFog":
+                "set current material [YN] affected fog",
             "RenderTheWorld.return": "Material make completed",
 
             "RenderTheWorld.playAnimation":
@@ -1117,6 +1182,12 @@ import {
                 "reset or make a DirectionalLight: [name] color: [color] intensity: [intensity] position: x[x] y[y] z[z] to: x[x2] y[y2] z[z2] [YN]cast shadows",
             "RenderTheWorld.setDirectionalLightShawdowCamera":
                 "set the shadow casting range for DirectionalLight: [name] left: [left] right: [right] top: [top] bottom: [bottom]",
+            
+            "RenderTheWorld.pointLight":
+                "<pointLight> color: [color] intensity: [intensity] position: x[x] y[y] z[z] decay[decay] [YN]cast shadows",
+            "RenderTheWorld.directionalLight":
+                "<directionalLight> color: [color] intensity: [intensity] position: x[x] y[y] z[z] to: x[x2] y[y2] z[z2] [YN]cast shadows",
+
             "RenderTheWorld.setLightMapSize":
                 "set Light: [name]'s shadow texture resolution x[xsize] y[ysize]",
             "RenderTheWorld.moveLight": "Light: [name] go to: x[x] y[y] z[z]",
@@ -1145,111 +1216,378 @@ import {
             "RenderTheWorld.disableFogEffect": "Disable fog effect",
 
             // tooltips
-            "RenderTheWorld.objectLoadingCompleted.tooltip": "当对象加载完成时触发",
-            "RenderTheWorld.set3dState.tooltip": "设置3D显示器是否显示",
-            "RenderTheWorld.get3dState.tooltip": "判断​3D显示器是否显示",
+            "RenderTheWorld.objectLoadingCompleted.tooltip":
+                "Triggered when object loading is complete",
+            "RenderTheWorld.set3dState.tooltip": "Set whether the 3D stage displays",
+            "RenderTheWorld.get3dState.tooltip": "Determine whether the 3D stage is displaying",
 
             "RenderTheWorld.init.tooltip":
-                "初始化扩展模块，设置背景颜色、渲染大小和是否开启抗锯齿",
-            "RenderTheWorld.render.tooltip": "渲染当前帧",
-            "RenderTheWorld.color_RGB.tooltip": "RGB颜色",
-            "RenderTheWorld.isWebGLAvailable.tooltip": "兼容性检查",
-            "RenderTheWorld._isWebGLAvailable.tooltip": "当前设备支持WebGL吗?",
+                "Initialize the extension module, set the background color, rendering size, and whether to enable anti aliasing",
+            "RenderTheWorld.color_RGB.tooltip": "RGB color",
+            "RenderTheWorld.isWebGLAvailable.tooltip": "WebGL compatibility check",
+            "RenderTheWorld._isWebGLAvailable.tooltip": "Does the current device support WebGL?",
 
-            "RenderTheWorld.makeCube.tooltip":
-                "创建或重置长方体",
-            "RenderTheWorld.makeSphere.tooltip":
-                "创建或重置球体",
-            "RenderTheWorld.makePlane.tooltip":
-                "创建或重置平面",
-            "RenderTheWorld.importOBJ.tooltip":
-                "导入或重置OBJ模型",
-            "RenderTheWorld.importGLTF.tooltip":
-                "导入或重置GLTF模型",
+            "RenderTheWorld.makeCube.tooltip": "Create or reset a cube",
+            "RenderTheWorld.makeSphere.tooltip": "Create or reset a sphere",
+            "RenderTheWorld.makePlane.tooltip": "Create or reset a plane",
+            "RenderTheWorld.importOBJ.tooltip": "Import or reset OBJ model",
+            "RenderTheWorld.importGLTF.tooltip": "Import or reset GLTF model",
 
-            "RenderTheWorld.cubeModel.tooltip": "创建一个长方体，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.sphereModel.tooltip": "创建一个球体，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.planeModel.tooltip": "创建一个平面，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.objModel.tooltip": "导入OBJ模型，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
-            "RenderTheWorld.gltfModel.tooltip": "导入GLTF模型，返回一个模型对象，可直接在“导入或重置模型”积木中使用",
+            "RenderTheWorld.cubeModel.tooltip":
+                'Create a cube and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.sphereModel.tooltip":
+                'Create a sphere and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.planeModel.tooltip":
+                'Create a plane and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.objModel.tooltip":
+                'Import OBJ model and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.gltfModel.tooltip":
+                'Import GLTF model and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.pointLight.tooltip":
+                'Create a pointLight and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.directionalLight.tooltip":
+                'Create a directionalLight and return a model object, which can be directly used in the "reset or make" building block',
 
-            "RenderTheWorld.importModel.tooltip": "导入或重置模型",
-            "RenderTheWorld.shadowSettings.tooltip": "设置模型的阴影设置",
-            "RenderTheWorld.makeMaterial.tooltip": "创建一个材质，可直接在“导入或重置模型”积木中使用，如非必要，推荐多个模型共用一个材质",
-            "RenderTheWorld.setMaterialColor.tooltip": "设置当前材质颜色，在“创建一个材质”积木中使用",
-            "RenderTheWorld.setMaterialFog.tooltip": "设置当前材质是否受雾效果影响，在“创建一个材质”积木中使用",
-            "RenderTheWorld.return.tooltip": "材质创建完成，必须在“创建一个材质”积木中使用",
+            "RenderTheWorld.importModel.tooltip": "Import or reset objects",
+            "RenderTheWorld.shadowSettings.tooltip": "Set shadow settings for objects",
+            "RenderTheWorld.makeMaterial.tooltip":
+                'Create a material that can be directly used in the "reset or make" block. If not necessary, it is recommended that multiple models share the same material',
+            "RenderTheWorld.setMaterialColor.tooltip":
+                'Set the current material color and use it in the "make material" block',
+            "RenderTheWorld.setMaterialFog.tooltip":
+                'Set whether the current material is affected by fog effects, using in the "make material" block',
+            "RenderTheWorld.return.tooltip":
+                'The material creation is completed and must be used in the "make material" block',
 
-            "RenderTheWorld.playAnimation.tooltip":
-                "启动模型的动画",
-            "RenderTheWorld.stopAnimation.tooltip":
-                "结束模型的动画",
-            "RenderTheWorld.updateAnimation.tooltip":
-                "推进模型的动画并更新",
-            "RenderTheWorld.getAnimation.tooltip": "获取模型的所有动画，返回一个字符串化列表",
+            "RenderTheWorld.playAnimation.tooltip": "Start the animation of the model",
+            "RenderTheWorld.stopAnimation.tooltip": "End the animation of the model",
+            "RenderTheWorld.updateAnimation.tooltip": "Advance the animation of the model and update it",
+            "RenderTheWorld.getAnimation.tooltip":
+                "Retrieve all animations of the model and return a stringified list",
 
-            "RenderTheWorld.rotationObject.tooltip":
-                "旋转物体",
-            "RenderTheWorld.moveObject.tooltip":
-                "移动物体",
-            "RenderTheWorld.scaleObject.tooltip": "缩放物体",
+            "RenderTheWorld.rotationObject.tooltip": "Rotating object",
+            "RenderTheWorld.moveObject.tooltip": "Moving object",
+            "RenderTheWorld.scaleObject.tooltip": "Scaling object",
 
-            "RenderTheWorld.getObjectPos.tooltip": "获取物体的任意xyz坐标",
+            "RenderTheWorld.getObjectPos.tooltip": "获取对象的任意xyz坐标",
             "RenderTheWorld.getObjectRotation.tooltip":
-                "获取物体任意xyz轴的旋转角度",
-            "RenderTheWorld.getObjectScale.tooltip": "获取物体任意xyz轴的缩放",
+                "Get any xyz coordinate of the object",
+            "RenderTheWorld.getObjectScale.tooltip": "Get the scaling of any xyz axis of the object",
 
-            "RenderTheWorld.deleteObject.tooltip": "删除物体",
+            "RenderTheWorld.deleteObject.tooltip": "Delete object",
 
-            "RenderTheWorld.setAmbientLightColor.tooltip":
-                "设置环境光颜色",
+            "RenderTheWorld.setAmbientLightColor.tooltip": "Set ambient light color",
             "RenderTheWorld.setHemisphereLightColor.tooltip":
-                "设置半球光天空颜色",
-            "RenderTheWorld.makePointLight.tooltip":
-                "创建或重置点光源",
-            "RenderTheWorld.makeDirectionalLight.tooltip":
-                "创建或重置方向光",
+                "Set the color of the hemisphere light",
             "RenderTheWorld.setDirectionalLightShawdowCamera.tooltip":
-                "设置方向光的阴影投射范围",
+                "Set the shadow projection range of directional light",
             "RenderTheWorld.setLightMapSize.tooltip":
-                "设置光源的阴影纹理分辨率",
-            "RenderTheWorld.moveLight.tooltip": "移动光源",
-            "RenderTheWorld.getLightPos.tooltip": "获取光源任意xyz的坐标",
-            "RenderTheWorld.deleteLight.tooltip": "删除光源",
+                "Set the shadow texture resolution of the light source",
 
-            "RenderTheWorld.moveCamera.tooltip": "移动相机",
-            "RenderTheWorld.rotationCamera.tooltip": "旋转相机",
-            "RenderTheWorld.cameraLookAt.tooltip": "让相机面向一个坐标",
-            "RenderTheWorld.getCameraPos.tooltip": "获取相机任意xyz的坐标",
-            "RenderTheWorld.getCameraRotation.tooltip": "获取相机任意xyz的旋转角度",
-            "RenderTheWorld.setControlState.tooltip": "设置鼠标控制相机模式是否开启",
-            "RenderTheWorld.mouseCanControlCamera.tooltip": "判断鼠标控制相机模式是否开启",
+            "RenderTheWorld.moveCamera.tooltip": "Moving camera",
+            "RenderTheWorld.rotationCamera.tooltip": "Rotating camera",
+            "RenderTheWorld.cameraLookAt.tooltip": "Place the camera facing a coordinate",
+            "RenderTheWorld.getCameraPos.tooltip": "Obtain the coordinates of any xyz of the camera",
+            "RenderTheWorld.getCameraRotation.tooltip":
+                "Obtain the rotation angle of any xyz of the camera",
+            "RenderTheWorld.setControlState.tooltip":
+                "Set whether the Mouse Control Camera mode is enabled or not",
+            "RenderTheWorld.mouseCanControlCamera.tooltip":
+                "Check if the Mouse Control Camera mode is enabled",
             "RenderTheWorld.controlCamera.tooltip":
-                "设置鼠标控制相机模型能否右键拖拽、能否中键缩放、能否左键旋转",
+                "Can the Mouse Control Camera mode be used for right click drag, middle click zoom, and left click rotation",
             "RenderTheWorld.setControlCameraDamping.tooltip":
-                "设置鼠标控制相机模型的视口旋转是否启用惯性",
+                "Whether to enable inertia for viewport rotation in the Mouse Control Camera mode",
             "RenderTheWorld.setControlCameraDampingNum.tooltip":
-                "设置鼠标控制相机模型的视口旋转惯性",
+                "Set viewport rotation inertia for Mouse Control Camera mode",
 
-            "RenderTheWorld.enableFogEffect.tooltip":
-                "启用雾效果并设置雾颜色",
-            "RenderTheWorld.disableFogEffect.tooltip": "禁用雾效果",
+            "RenderTheWorld.enableFogEffect.tooltip": "Enable fog effect and set fog color",
+            "RenderTheWorld.disableFogEffect.tooltip": "Disable fog effect",
         },
-    });
+    };
+    translate.setup(translate_setup);
+
+    class RTW_Model_Box {
+        constructor(model, ismaterial, isobj, isgltf, animations) {
+            this.model = model;
+            this.ismaterial = ismaterial;
+            this.isobj = isobj;
+            this.isgltf = isgltf;
+            this.animations = animations;
+        }
+
+        toString() {
+            return String(this.model);
+        }
+
+        getHTML() {
+            let html = document.createElement("span");
+            // html.style.color = this.color;
+            // html.style.fontSize = String(this.size) + "px";
+            if (this.isobj) {
+                html.innerText = `objfile: "${this.model.objfile}" mtlfile: "${this.model.mtlfile}`;
+            } else if (this.isgltf) {
+                html.innerText = `gltffile: "${this.model.gltffile}"`;
+            } else {
+                html.innerText = `model: "${this.model["type"] ?? String(this.model)}"`;
+            }
+            return html;
+        }
+    }
+
+    let Wrapper = class _Wrapper extends String {
+        /**
+         * Construct a wrapped value.
+         * @param value Value to wrap.
+         */
+        constructor(value) {
+            super(value);
+            this.value = value;
+        }
+        /**
+         * Unwraps a wrapped object.
+         * @param value Wrapped object.
+         * @returns Unwrapped object.
+         */
+        static unwrap(value) {
+            return value instanceof _Wrapper ? value.value : value;
+        }
+        /**
+         * toString method for Scratch monitors.
+         * @returns String display.
+         */
+        toString() {
+            return String(this.value);
+        }
+    };
+
+    function show(Blockly, id, value, textAlign) {
+        const workspace = Blockly.getMainWorkspace();
+        const block = workspace.getBlockById(id);
+        if (!block) return;
+        Blockly.DropDownDiv.hideWithoutAnimation();
+        Blockly.DropDownDiv.clearContent();
+        const contentDiv = Blockly.DropDownDiv.getContentDiv(),
+            elem = document.createElement("div");
+        elem.setAttribute("class", "valueReportBox");
+        elem.append(...value);
+        elem.style.maxWidth = "none";
+        elem.style.maxHeight = "none";
+        elem.style.textAlign = textAlign;
+        elem.style.userSelect = "none";
+        contentDiv.appendChild(elem);
+        Blockly.DropDownDiv.setColour(
+            Blockly.Colours.valueReportBackground,
+            Blockly.Colours.valueReportBorder,
+        );
+        Blockly.DropDownDiv.showPositionedByBlock(workspace, block);
+        return elem;
+    }
 
     class RenderTheWorld {
         constructor(_runtime) {
             this.runtime = _runtime ?? Scratch?.vm?.runtime;
             if (!this.runtime) return;
 
+            /**
+             * 在编辑器自定义返回值显示的方法来自 https://github.com/FurryR/lpp-scratch 的LPP扩展
+             */
+            this.Blockly = void 0;
+            this.vm = getVM(runtime);
+            this.Blockly = getBlockly(this.vm);
+            if (!this.Blockly)
+                this.vm.once("workspaceUpdate", () => {
+                    const newBlockly = getBlockly(this.vm);
+                    if (newBlockly && newBlockly !== this.Blockly) {
+                        this.Blockly = newBlockly;
+                    }
+                });
+
+            const _visualReport = runtime.visualReport;
+            runtime.visualReport = (blockId, value) => {
+                const unwrappedValue = Wrapper.unwrap(value);
+                if (unwrappedValue instanceof RTW_Model_Box && this.Blockly) {
+                    //return _visualReport.call(runtime, blockId, value);
+                    show(
+                        this.Blockly,
+                        blockId,
+                        [unwrappedValue.getHTML()],
+                        "center",
+                    );
+                } else {
+                    return _visualReport.call(runtime, blockId, value);
+                }
+            };
+            const _requestUpdateMonitor = runtime.requestUpdateMonitor;
+            const monitorMap = /* @__PURE__ */ new Map();
+            if (_requestUpdateMonitor) {
+                const patchMonitorValue = (element, value) => {
+                    const unwrappedValue = Wrapper.unwrap(value);
+                    const valueElement =
+                        element.querySelector('[class*="value"]');
+                    if (valueElement instanceof HTMLElement) {
+                        const internalInstance = Object.values(
+                            valueElement,
+                        ).find(
+                            (v) =>
+                                typeof v === "object" &&
+                                v !== null &&
+                                Reflect.has(v, "stateNode"),
+                        );
+                        if (unwrappedValue instanceof RTW_Model_Box) {
+                            const inspector = unwrappedValue.getHTML();
+                            valueElement.style.textAlign = "left";
+                            valueElement.style.backgroundColor = "#121C3D";
+                            valueElement.style.color = "#eeeeee";
+                            valueElement.style.border = "1px solid #4A76FF";
+                            while (valueElement.firstChild)
+                                valueElement.removeChild(
+                                    valueElement.firstChild,
+                                );
+                            valueElement.append(inspector);
+                        } else {
+                            if (internalInstance) {
+                                valueElement.style.textAlign = "";
+                                valueElement.style.backgroundColor =
+                                    internalInstance.memoizedProps?.style
+                                        ?.background ?? "";
+                                valueElement.style.color =
+                                    internalInstance.memoizedProps?.style
+                                        ?.color ?? "";
+                                while (valueElement.firstChild)
+                                    valueElement.removeChild(
+                                        valueElement.firstChild,
+                                    );
+                                valueElement.append(String(value));
+                            }
+                        }
+                    }
+                };
+                const getMonitorById = (id2) => {
+                    const elements = document.querySelectorAll(
+                        `[class*="monitor_monitor-container"]`,
+                    );
+                    for (const element of Object.values(elements)) {
+                        const internalInstance = Object.values(element).find(
+                            (v) =>
+                                typeof v === "object" &&
+                                v !== null &&
+                                Reflect.has(v, "children"),
+                        );
+                        if (internalInstance) {
+                            const props = internalInstance?.children?.props;
+                            if (id2 === props?.id) return element;
+                        }
+                    }
+                    return null;
+                };
+                this.runtime.requestUpdateMonitor = (state) => {
+                    const id2 = state.get("id");
+                    if (typeof id2 === "string") {
+                        const monitorValue = state.get("value");
+                        const unwrappedValue = Wrapper.unwrap(monitorValue);
+                        const monitorMode = state.get("mode");
+                        const monitorVisible = state.get("visible");
+                        const cache = monitorMap.get(id2);
+                        if (typeof monitorMode === "string" && cache) {
+                            cache.mode = monitorMode;
+                            cache.value = void 0;
+                        } else if (monitorValue !== void 0) {
+                            if (unwrappedValue instanceof RTW_Model_Box) {
+                                if (!cache || cache.value !== monitorValue) {
+                                    requestAnimationFrame(() => {
+                                        const monitor = getMonitorById(id2);
+                                        if (monitor) {
+                                            patchMonitorValue(
+                                                monitor,
+                                                monitorValue,
+                                            );
+                                        }
+                                    });
+                                    if (!cache) {
+                                        monitorMap.set(id2, {
+                                            value: monitorValue,
+                                            mode: (() => {
+                                                if (runtime.getMonitorState) {
+                                                    const monitorCached =
+                                                        runtime
+                                                            .getMonitorState()
+                                                            .get(id2);
+                                                    if (monitorCached) {
+                                                        const mode =
+                                                            monitorCached.get(
+                                                                "mode",
+                                                            );
+                                                        return typeof mode ===
+                                                            "string"
+                                                            ? mode
+                                                            : "normal";
+                                                    }
+                                                }
+                                                return "normal";
+                                            })(),
+                                        });
+                                    } else cache.value = monitorValue;
+                                }
+                                return true;
+                            } else {
+                                if (monitorMap.has(id2)) {
+                                    const monitor = getMonitorById(id2);
+                                    if (monitor) {
+                                        patchMonitorValue(
+                                            monitor,
+                                            monitorValue,
+                                        );
+                                    }
+                                    monitorMap.delete(id2);
+                                }
+                            }
+                        } else if (monitorVisible !== void 0) {
+                            if (!monitorVisible) monitorMap.delete(id2);
+                        }
+                    }
+                    return _requestUpdateMonitor.call(this.runtime, state);
+                };
+            }
+
+            // 修复ccw_hat_parameter的颜色问题
+            this.objectLoadingCompletedUpdate = () => {
+                console.log(this.Blockly);
+                this.Blockly.getMainWorkspace().getAllBlocks().filter((block) => block.type === "ccw_hat_parameter").forEach((hat_parameter) => {
+                    if (hat_parameter.svgGroup_.getElementsByTagName("text")[0].textContent === "name") {  // 这里是判断参数的名称，防止误判
+                        let flag = false;
+                        let parentBlock_ = hat_parameter.parentBlock_;
+                        while (parentBlock_!==null) {
+                            if (parentBlock_.type === chen_RenderTheWorld_extensionId+"_objectLoadingCompleted") {  // 如果这个ccw_hat_parameter的最高层是objectLoadingCompleted积木，说明他是objectLoadingCompleted的ccw_hat_parameter
+                                flag = true;
+                                break;
+                            }
+                            parentBlock_ = parentBlock_.parentBlock_;
+                        }
+                        if (flag) {
+                            console.log(hat_parameter);
+                            hat_parameter["is_RTW_hat_parameter"] = true;
+                            hat_parameter.colour_ = hat_parameter.svgPath_.style.fill = "#121C3D";
+                            hat_parameter.colourTertiary_ = hat_parameter.svgPath_.style.stroke="#4A76FF";
+                        } else if (hat_parameter["is_RTW_hat_parameter"]===true) {  // 移除时恢复
+                            hat_parameter["is_RTW_hat_parameter"] = undefined;
+                            hat_parameter.colour_ = hat_parameter.svgPath_.style.fill = "#FF6680";
+                            hat_parameter.colourTertiary_ = hat_parameter.svgPath_.style.stroke="#FF3355";
+                        }
+                    }
+                });
+            }
+            this.runtime.on("PROJECT_LOADED", this.objectLoadingCompletedUpdate);     // 项目加载完
+            this.runtime.on("BLOCK_DRAG_UPDATE", this.objectLoadingCompletedUpdate);  // 拖动完积木后
+            this.runtime.on("BLOCKSINFO_UPDATE", this.objectLoadingCompletedUpdate);  // 切换角色时
+
             hackFun(_runtime);
 
             // 注册可拓展积木
-            if (is_see_inside() === 'dev') {
-                setExpandableBlocks(
-                    this.runtime,
-                    this
-                );
+            console.log("RTW", is_see_inside());
+            
+            if (is_see_inside()) {
+                setExpandableBlocks(this.runtime, this);
             }
 
             this.vm = getVM(this.runtime);
@@ -1286,16 +1624,10 @@ import {
             // 半球光
             this.hemisphere_light = null;
 
-            // 光
-            this.lights = {};
             // 物体
             this.objects = {};
             // 动画
             this.animations = {};
-
-            // 原CCW显示canvas
-            //this._ccw = document.getElementsByClassName('gandi_stage_stage_1fD7k')[0].getElementsByTagName('canvas')[0];
-            this.scratchCanvas = null;
 
             // threejs显示canvas
             this.tc = null;
@@ -1304,23 +1636,39 @@ import {
 
             // threejs skin
             let index = this.runtime.renderer._groupOrdering.indexOf("video");
-            this.runtime.renderer._groupOrdering.splice(index + 1, 0, "RenderTheWorld");
+            this.runtime.renderer._groupOrdering.splice(
+                index + 1,
+                0,
+                "RenderTheWorld",
+            );
             this.runtime.renderer._layerGroups["RenderTheWorld"] = {
                 groupIndex: 0,
-                drawListOffset: this.runtime.renderer._layerGroups["video"].drawListOffset,
+                drawListOffset:
+                    this.runtime.renderer._layerGroups["video"].drawListOffset,
             };
-            for (let i = 0; i < this.runtime.renderer._groupOrdering.length; i++) {
-                this.runtime.renderer._layerGroups[this.runtime.renderer._groupOrdering[i]].groupIndex = i;
+            for (
+                let i = 0;
+                i < this.runtime.renderer._groupOrdering.length;
+                i++
+            ) {
+                this.runtime.renderer._layerGroups[
+                    this.runtime.renderer._groupOrdering[i]
+                ].groupIndex = i;
             }
 
             // Create drawable and skin
-            this.threeSkinId = this.runtime.renderer._nextSkinId++
+            this.threeSkinId = this.runtime.renderer._nextSkinId++;
             let SkinsClass = new Skins(this.runtime);
-            this.threeSkin = new SkinsClass.CanvasSkin(this.threeSkinId, this.runtime.renderer);
+            this.threeSkin = new SkinsClass.CanvasSkin(
+                this.threeSkinId,
+                this.runtime.renderer,
+            );
+            this.threeSkin.setContent(this.NullCanvas); // 修复一加载扩展物体就显示画布的问题
             this.runtime.renderer._allSkins[this.threeSkinId] = this.threeSkin;
 
             // threejs drawable layer
-            this.threeDrawableId = this.runtime.renderer.createDrawable("RenderTheWorld")
+            this.threeDrawableId =
+                this.runtime.renderer.createDrawable("RenderTheWorld");
             this.runtime.renderer.updateDrawableSkinId(
                 this.threeDrawableId,
                 this.threeSkinId,
@@ -1346,6 +1694,9 @@ import {
         }
 
         getInfo() {
+            // 在获取积木信息时重新加载translate.setup，可以避免有时候积木文本变成类似于“extid.opcode”的情况，这里比lpp更进了一步！
+            translate.setup(translate_setup);
+
             let blocks = [
                 {
                     blockType: BlockType.BUTTON,
@@ -1391,11 +1742,6 @@ import {
                     blockType: BlockType.BOOLEAN,
                     text: this.formatMessage("RenderTheWorld.get3dState"),
                 },
-                // {
-                //     opcode: "render",
-                //     blockType: BlockType.COMMAND,
-                //     text: this.formatMessage("RenderTheWorld.render"),
-                // },
                 {
                     blockType: BlockType.LABEL,
                     text: this.formatMessage("RenderTheWorld.tools"),
@@ -1422,9 +1768,7 @@ import {
                 {
                     opcode: "isWebGLAvailable",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.isWebGLAvailable",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.isWebGLAvailable"),
                 },
                 {
                     opcode: "_isWebGLAvailable",
@@ -1465,7 +1809,7 @@ import {
                             type: "string",
                             defaultValue: "",
                         },
-                    }
+                    },
                 },
                 // "RenderTheWorld.setMaterialFog": "设置当前材质 [YN] 受雾效果影响",
                 {
@@ -1478,14 +1822,14 @@ import {
                             menu: "YN",
                             defaultValue: "true",
                         },
-                    }
+                    },
                 },
                 {
                     opcode: "return",
                     blockType: BlockType.COMMAND,
                     text: this.formatMessage("RenderTheWorld.return"),
                     arguments: {},
-                    isTerminal: true
+                    isTerminal: true,
                 },
                 {
                     blockType: BlockType.LABEL,
@@ -1517,9 +1861,9 @@ import {
                         },
                         model: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
-                    }
+                    },
                 },
                 {
                     opcode: "deleteObject",
@@ -1533,13 +1877,13 @@ import {
                     },
                     expandableBlock: {
                         expandableArgs: {
-                            'TEXT': ['text', ', ', 1],
-                            'NAME': ['string', 'name'],
+                            TEXT: ["text", ", ", 1],
+                            NAME: ["string", "name"],
                         },
                         defaultIndex: 1,
-                        textBegin: '',
-                        textEnd: ''
-                    }
+                        textBegin: "",
+                        textEnd: "",
+                    },
                 },
                 {
                     opcode: "cubeModel",
@@ -1560,7 +1904,7 @@ import {
                         },
                         material: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
                     },
                     output: "Reporter",
@@ -1586,7 +1930,7 @@ import {
                         },
                         material: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
                     },
                     output: "Reporter",
@@ -1608,7 +1952,7 @@ import {
                         },
                         material: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
                     },
                     output: "Reporter",
@@ -1630,7 +1974,7 @@ import {
                         },
                         material: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
                     },
                     output: "Reporter",
@@ -1648,7 +1992,7 @@ import {
                         },
                         material: {
                             type: null,
-                            defaultValue: '',
+                            defaultValue: "",
                         },
                     },
                     output: "Reporter",
@@ -1896,9 +2240,7 @@ import {
                 {
                     opcode: "rotationObject",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.rotationObject",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.rotationObject"),
                     arguments: {
                         name: {
                             type: "string",
@@ -1999,9 +2341,7 @@ import {
                 {
                     opcode: "getObjectScale",
                     blockType: BlockType.REPORTER,
-                    text: this.formatMessage(
-                        "RenderTheWorld.getObjectScale",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.getObjectScale"),
                     arguments: {
                         name: {
                             type: "string",
@@ -2020,9 +2360,7 @@ import {
                 {
                     opcode: "playAnimation",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.playAnimation",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.playAnimation"),
                     arguments: {
                         name: {
                             type: "string",
@@ -2035,20 +2373,18 @@ import {
                     },
                     expandableBlock: {
                         expandableArgs: {
-                            'TEXT': ['text', ', ', 1],
-                            'ANIMATIONMAME': ['string', 'animationName'],
+                            TEXT: ["text", ", ", 1],
+                            ANIMATIONMAME: ["string", "animationName"],
                         },
                         defaultIndex: 1,
-                        textBegin: '',
-                        textEnd: ''
-                    }
+                        textBegin: "",
+                        textEnd: "",
+                    },
                 },
                 {
                     opcode: "stopAnimation",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.stopAnimation",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.stopAnimation"),
                     arguments: {
                         name: {
                             type: "string",
@@ -2061,20 +2397,18 @@ import {
                     },
                     expandableBlock: {
                         expandableArgs: {
-                            'TEXT': ['text', ', ', 1],
-                            'ANIMATIONMAME': ['string', 'animationName'],
+                            TEXT: ["text", ", ", 1],
+                            ANIMATIONMAME: ["string", "animationName"],
                         },
                         defaultIndex: 1,
-                        textBegin: '',
-                        textEnd: ''
-                    }
+                        textBegin: "",
+                        textEnd: "",
+                    },
                 },
                 {
                     opcode: "updateAnimation",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.updateAnimation",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.updateAnimation"),
                     arguments: {
                         name: {
                             type: "string",
@@ -2103,16 +2437,10 @@ import {
                     text: this.formatMessage("RenderTheWorld.lights"),
                 },
                 {
-                    opcode: "makePointLight",
-                    blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.makePointLight",
-                    ),
+                    opcode: "pointLight",
+                    blockType: BlockType.OUTPUT,
+                    text: this.formatMessage("RenderTheWorld.pointLight"),
                     arguments: {
-                        name: {
-                            type: "string",
-                            defaultValue: "name",
-                        },
                         color: {
                             type: "number",
                         },
@@ -2141,18 +2469,15 @@ import {
                             menu: "YN",
                         },
                     },
+                    output: "Reporter",
+                    outputShape: 3,
+                    branchCount: 0,
                 },
                 {
-                    opcode: "makeDirectionalLight",
-                    blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.makeDirectionalLight",
-                    ),
+                    opcode: "directionalLight",
+                    blockType: BlockType.OUTPUT,
+                    text: this.formatMessage("RenderTheWorld.directionalLight"),
                     arguments: {
-                        name: {
-                            type: "string",
-                            defaultValue: "name",
-                        },
                         color: {
                             type: "number",
                         },
@@ -2189,7 +2514,11 @@ import {
                             menu: "YN",
                         },
                     },
+                    output: "Reporter",
+                    outputShape: 3,
+                    branchCount: 0,
                 },
+                
                 {
                     opcode: "setAmbientLightColor",
                     blockType: BlockType.COMMAND,
@@ -2258,9 +2587,7 @@ import {
                 {
                     opcode: "setLightMapSize",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.setLightMapSize",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.setLightMapSize"),
                     arguments: {
                         name: {
                             type: "string",
@@ -2275,65 +2602,6 @@ import {
                             defaultValue: 512,
                         },
                     },
-                },
-                {
-                    opcode: "moveLight",
-                    blockType: BlockType.COMMAND,
-                    text: this.formatMessage("RenderTheWorld.moveLight"),
-                    arguments: {
-                        name: {
-                            type: "string",
-                            defaultValue: "name",
-                        },
-                        x: {
-                            type: "number",
-                            defaultValue: 0,
-                        },
-                        y: {
-                            type: "number",
-                            defaultValue: 0,
-                        },
-                        z: {
-                            type: "number",
-                            defaultValue: 0,
-                        },
-                    },
-                },
-                {
-                    opcode: "getLightPos",
-                    blockType: BlockType.REPORTER,
-                    text: this.formatMessage("RenderTheWorld.getLightPos"),
-                    arguments: {
-                        name: {
-                            type: "string",
-                            defaultValue: "name",
-                        },
-                        xyz: {
-                            type: "string",
-                            menu: "xyz",
-                        },
-                    },
-                },
-                "---",
-                {
-                    opcode: "deleteLight",
-                    blockType: BlockType.COMMAND,
-                    text: this.formatMessage("RenderTheWorld.deleteLight"),
-                    arguments: {
-                        name: {
-                            type: "string",
-                            defaultValue: "name",
-                        },
-                    },
-                    expandableBlock: {
-                        expandableArgs: {
-                            'TEXT': ['text', ', ', 1],
-                            'NAME': ['string', 'name'],
-                        },
-                        defaultIndex: 1,
-                        textBegin: '',
-                        textEnd: ''
-                    }
                 },
                 {
                     blockType: BlockType.LABEL,
@@ -2361,9 +2629,7 @@ import {
                 {
                     opcode: "rotationCamera",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.rotationCamera",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.rotationCamera"),
                     arguments: {
                         x: {
                             type: "number",
@@ -2429,9 +2695,7 @@ import {
                 {
                     opcode: "setControlState",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.setControlState",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.setControlState"),
                     hideFromPalette: false,
                     arguments: {
                         YN: {
@@ -2450,9 +2714,7 @@ import {
                 {
                     opcode: "controlCamera",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.controlCamera",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.controlCamera"),
                     hideFromPalette: false,
                     arguments: {
                         yn1: {
@@ -2502,9 +2764,7 @@ import {
                 {
                     opcode: "enableFogEffect",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.enableFogEffect",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.enableFogEffect"),
                     arguments: {
                         color: {
                             type: "number",
@@ -2522,21 +2782,21 @@ import {
                 {
                     opcode: "disableFogEffect",
                     blockType: BlockType.COMMAND,
-                    text: this.formatMessage(
-                        "RenderTheWorld.disableFogEffect",
-                    ),
+                    text: this.formatMessage("RenderTheWorld.disableFogEffect"),
                 },
             ];
 
-            blocks.forEach(((e) => {
+            blocks.forEach((e) => {
                 if (typeof e !== "string" && e.blockType != BlockType.LABEL) {
-                    e.tooltip = this.formatMessage("RenderTheWorld.".concat(e.opcode).concat(".tooltip"));
+                    e.tooltip = this.formatMessage(
+                        "RenderTheWorld.".concat(e.opcode).concat(".tooltip"),
+                    );
                 }
-            }));
+            });
             return {
                 id: chen_RenderTheWorld_extensionId, // 拓展id
                 docsURI:
-                    "https://learn.ccw.site/article/aa0cf6d0-6758-447a-96f5-8e5dfdbe14d6",
+                    "https://learn.ccw.site/article/0d8196d6-fccf-4d92-91b8-ee918a733237",
                 name: this.formatMessage("RenderTheWorld.name"), // 拓展名
                 blockIconURI: chen_RenderTheWorld_icon,
                 menuIconURI: chen_RenderTheWorld_icon,
@@ -2660,7 +2920,7 @@ import {
                                     "RenderTheWorld.material.Phong",
                                 ),
                                 value: "Phong",
-                            }
+                            },
                         ],
                     },
                 },
@@ -2719,7 +2979,7 @@ import {
          * @param {object} args
          */
 
-        isWebGLAvailable({ }) {
+        isWebGLAvailable({}) {
             this.isWebglAvailable = WebGL.isWebGLAvailable();
         }
         /**
@@ -2728,7 +2988,7 @@ import {
          * @return {boolean}
          */
 
-        _isWebGLAvailable({ }) {
+        _isWebGLAvailable({}) {
             return this.isWebglAvailable;
         }
 
@@ -2791,57 +3051,22 @@ import {
         init({ color, sizex, sizey, Anti_Aliasing }) {
             this._init_porject_time = new Date().getTime();
             const _draw = this.runtime.renderer.draw;
-            // 将原来的大小自适应删掉就能解决黑屏
-            // const _resize = this.runtime.renderer.resize;
-            // this.runtime.renderer.resize = (pixelsWide, pixelsTall) => {
-            //     _resize.call(this.runtime.renderer, pixelsWide, pixelsTall);
-            //     if (this.tc) {
-            //         this.tc.width = String(pixelsWide) + "px";
-            //         this.tc.height = String(pixelsTall) + "px";
-            //     }
-            // };
-            // this.runtime.renderer.draw = () => {
-            //     if (!this.isTdShow) {
-            //         _draw.call(this.runtime.renderer);
-            //     } else if (this.dirty) {
-            //         this.dirty = false; // TODO: 和 Scratch renderer 共用 dirty
-            //         // this.dirty 是一个变量，每当场景变更（需要渲染）时就设置为 true
-            //         this.renderer.render(this.scene, this.camera);
-            //     }
-            // };
             this.dirty = false;
 
-            this.scratchCanvas = this.runtime.renderer.canvas;
 
             this.clock = new THREE.Clock();
             this._clock = 0;
             this.objects = {};
-            this.lights = {};
             this.animations = {};
-            // this._ccw.style.display = 'none';  // 隐藏原CCW显示canvas
 
-            // 创建threejs显示canvas
-            //this._ccw = document.getElementsByClassName('gandi_stage_stage_1fD7k')[0].getElementsByTagName('canvas')[0];
             if (!this.tc) {
                 this.tc = document.createElement("canvas");
                 this.tc.className = "RenderTheWorld";
             }
 
-            this.scratchCanvas = this.runtime.renderer.canvas;
-
-            // this.runtime.renderer.resize = (e, t) => {
-            // 	this.__resize.call(this.runtime.renderer, e, t);
-            // 	this._resize();
-            // };
-            // this.runtime.renderer.draw = () => {
-            // 	if (!this.isTdShow) {
-            // 		this.__draw.call(this.runtime.renderer);
-            // 	}
-            // };
-
             let _antialias = false;
-            // 是否启动抗锯齿
 
+            // 是否启动抗锯齿
             if (Cast.toString(Anti_Aliasing) == "enable") {
                 _antialias = true;
             }
@@ -2853,7 +3078,6 @@ import {
 
             this.renderer.shadowMap.enabled = true;
             this.renderer.shadowMapEnabled = true;
-            //this.renderer.setSize(this.tc.clientWidth, this.tc.clientHeight, false);
             this.renderer.setSize(
                 Cast.toNumber(sizex),
 
@@ -2867,7 +3091,6 @@ import {
 
             // 创建摄像机
             this.fov = 40; // 视野范围
-            // this.aspect = this.runtime.stageWidth / this.runtime.stageHeight; // 相机默认值 画布的宽高比
             this.aspect = this.tc.width / this.tc.height; // 相机默认值 画布的宽高比
             this.near = 0.1; // 近平面
             this.far = 1000; // 远平面
@@ -2878,10 +3101,7 @@ import {
                 this.near,
                 this.far,
             );
-            this.controls = new OrbitControls(
-                this.camera,
-                this.scratchCanvas,
-            );
+            this.controls = new OrbitControls(this.camera, this.runtime.renderer.canvas);
             this.controls.enabled = false;
             this.controls.enableDamping = false;
             this.controls.enablePan = false; //禁止右键拖拽
@@ -2903,7 +3123,7 @@ import {
             );
             this.scene.add(this.hemisphere_light);
 
-            this.isTcShow = true;
+            this.isTcShow = false;
 
             this.render = () => {
                 this._clock = this.clock.getDelta();
@@ -2914,7 +3134,7 @@ import {
                 } else {
                     this.threeSkin.setContent(this.NullCanvas);
                 }
-                this.runtime.requestRedraw()
+                this.runtime.requestRedraw();
 
                 if (this.controls.enabled) {
                     this.controls.update();
@@ -2922,19 +3142,22 @@ import {
             };
 
             this._listener();
-            this.threeSkin.setContent(this.NullCanvas);
         }
 
         _listener() {
             if (!this.is_listener) {
                 this.runtime.on("PROJECT_START", () => {
-                    console.log(chen_RenderTheWorld_extensionId + ": Starting renders");
+                    console.log(
+                        chen_RenderTheWorld_extensionId + ": Starting renders",
+                    );
                     this.renderer.setAnimationLoop(this.render);
                 });
 
                 this.runtime.on("PROJECT_STOP_ALL", () => {
                     this._init_porject_time = 0;
-                    console.log(chen_RenderTheWorld_extensionId + ": Stopping renders");
+                    console.log(
+                        chen_RenderTheWorld_extensionId + ": Stopping renders",
+                    );
                     this.renderer.setAnimationLoop(null);
                     this.scene.traverse((child) => {
                         if (child.material) {
@@ -2974,31 +3197,11 @@ import {
             return this.isTcShow;
         }
 
-        // _resize() {
-        // 	this.tc.style.width = this.scratchCanvas.style.width;
-        // 	this.tc.style.height = this.scratchCanvas.style.height;
-        // }
-
-        /**
-         * 渲染，放在主循环里
-         */
-
-        // render(args) {
-        //     if (!this.tc) {
-        //         return "⚠️显示器未初始化！";
-        //     }
-        //     this._clock = this.clock.getDelta();
-        //     this.renderer.render(this.scene, this.camera);
-
-        //     if (this.controls.enabled) {
-        //         this.controls.update();
-        //     }
-        // }
-
         /**
          * 创建材质
          * @param {object} args
          * @param {string} args.material
+         * @return {_Wrapper}
          */
         makeMaterial({ material }, util) {
             const thread = util.thread;
@@ -3030,22 +3233,27 @@ import {
                 } else {
                     _material = new THREE.MeshBasicMaterial();
                 }
-                _material.fog = true;  // 默认受雾效果影响
+                _material.fog = true; // 默认受雾效果影响
 
                 if (this.threadInfo[thread.topBlock]) {
                     for (let key in this.threadInfo[thread.topBlock]) {
                         if (key === "color") {
-                            _material.color.set(this.threadInfo[thread.topBlock][key]);
+                            _material.color.set(
+                                this.threadInfo[thread.topBlock][key],
+                            );
                         }
                         if (key === "fog") {
-                            _material.fog = this.threadInfo[thread.topBlock][key];
+                            _material.fog =
+                                this.threadInfo[thread.topBlock][key];
                         }
                     }
                 }
 
-                return _material;
+                return new Wrapper(
+                    new RTW_Model_Box(_material, true, false, false, undefined),
+                );
             } else {
-                this.threadInfo[thread.topBlock] = {}
+                this.threadInfo[thread.topBlock] = {};
                 // 第1阶段：运行堆栈。
                 // 假设区块返回一个承诺，这样
                 // 解释器暂停在块上，
@@ -3055,19 +3263,19 @@ import {
                 if (util.stackFrame._inlineLoopRan) {
                     thread.popStack();
                     return "";
-                };
+                }
 
                 const stackFrame = thread.peekStackFrame();
                 const oldGoToNextBlock = thread.goToNextBlock;
 
                 const resetGoToNext = function () {
                     thread.goToNextBlock = oldGoToNextBlock;
-                }
+                };
                 const blockGlowInFrame = thread.blockGlowInFrame;
                 const resetGlowInFrame = function () {
                     delete thread.blockGlowInFrame;
                     thread.blockGlowInFrame = blockGlowInFrame;
-                }
+                };
 
                 const trap = () => {
                     thread.status = thread.constructor.STATUS_RUNNING;
@@ -3077,7 +3285,7 @@ import {
 
                     util.stackFrame._inlineLoopRan = true;
                     this.stepToBranchWithBlockId(realBlockId, thread, 1, true);
-                }
+                };
 
                 // 对边缘激活的帽子（事件触发器）进行拦截，以转入 thread.goToNextBlock
                 thread.goToNextBlock = function () {
@@ -3088,7 +3296,7 @@ import {
                     thread.goToNextBlock = oldGoToNextBlock;
                     oldGoToNextBlock.call(this);
                     resetGoToNext();
-                }
+                };
                 // 为其他脚本在thread.blockGlowInFrame上添加一个getter
                 Object.defineProperty(thread, "blockGlowInFrame", {
                     get() {
@@ -3104,7 +3312,7 @@ import {
                 });
 
                 // 虚假承诺
-                return { then: () => { } };
+                return { then: () => {} };
             }
         }
 
@@ -3116,7 +3324,7 @@ import {
             const currentBlockId = blockId;
             const branchId = thread.target.blocks.getBranch(
                 currentBlockId,
-                branchNum
+                branchNum,
             );
             thread.peekStackFrame().isLoop = isLoop;
             if (branchId) {
@@ -3131,7 +3339,9 @@ import {
             const thread = util.thread;
 
             if (Number(Cast.toString(color)) == Number(Cast.toString(color))) {
-                this.threadInfo[thread.topBlock].color = Number(Cast.toString(color));
+                this.threadInfo[thread.topBlock].color = Number(
+                    Cast.toString(color),
+                );
             } else {
                 this.threadInfo[thread.topBlock].color = Cast.toString(color);
             }
@@ -3154,7 +3364,11 @@ import {
             let blockID = thread.peekStack();
             while (blockID) {
                 const block = thread.target.blocks.getBlock(blockID);
-                if (block && block.opcode === chen_RenderTheWorld_extensionId + "_makeMaterial") {
+                if (
+                    block &&
+                    block.opcode ===
+                        chen_RenderTheWorld_extensionId + "_makeMaterial"
+                ) {
                     break;
                 }
                 thread.popStack();
@@ -3176,7 +3390,7 @@ import {
          * 创建或重置模型
          * @param {object} args
          * @param {string} args.name
-         * @param {number} args.model
+         * @param {_Wrapper} args.model
          */
         async importModel({ name, model }) {
             if (!this.tc) {
@@ -3185,14 +3399,19 @@ import {
             if (model === undefined) {
                 return "⚠️模型加载失败！";
             }
+            model = Wrapper.unwrap(model);
 
-            let init_porject_time = this._init_porject_time;  // 解决快速点击多次绿旗，模型重复添加问题
+            if (!(model instanceof RTW_Model_Box)) {
+                return "⚠️传入的模型无法识别";
+            }
+
+            let init_porject_time = this._init_porject_time; // 解决快速点击多次绿旗，模型重复添加问题
             name = Cast.toString(name);
             this.releaseDuplicates(name);
-            if (model["model"] != undefined && model["model"].isObject3D) {
+            if (model.model != undefined && model.model.isObject3D) {
                 this.objects[name] = model.model;
 
-                if (model["animations"] != undefined) {
+                if (model.animations != undefined) {
                     this.animations[name] = model.animations;
                 }
 
@@ -3204,17 +3423,27 @@ import {
                         },
                     },
                 );
-                r && r.forEach(((e) => {
-                    this.runtime.sequencer.stepThread(e);
-                }));
+                r &&
+                    r.forEach((e) => {
+                        this.runtime.sequencer.stepThread(e);
+                    });
                 if (init_porject_time == this._init_porject_time) {
                     this.scene.add(this.objects[name]);
-                    this.render()
+                    this.render();
                 }
-            } else if (model["objfile"] != undefined && model["mtlfile"] != undefined) {
-                this._objModel(name, model["objfile"], model["mtlfile"], init_porject_time);
-            } else if (model["gltffile"] != undefined) {
-                this._gltfModel(name, model["gltffile"], init_porject_time);
+            } else if (model.isobj) {
+                this._objModel(
+                    name,
+                    model.model["objfile"],
+                    model.model["mtlfile"],
+                    init_porject_time,
+                );
+            } else if (model.isgltf) {
+                this._gltfModel(
+                    name,
+                    model.model["gltffile"],
+                    init_porject_time,
+                );
             }
         }
 
@@ -3260,7 +3489,13 @@ import {
         }
 
         cubeModel({ a, b, h, material }) {
-            console.log(material);
+            material = Wrapper.unwrap(material);
+            if (material !== undefined) {
+                if (!material.ismaterial) {
+                    return "⚠️材质无效！";
+                }
+                material = material["model"];
+            }
 
             let geometry = new THREE.BoxGeometry(
                 Cast.toNumber(a),
@@ -3270,42 +3505,81 @@ import {
                 Cast.toNumber(h),
             );
 
-            return {
-                "model": new THREE.Mesh(geometry, material),
-            };
+            return new Wrapper(
+                new RTW_Model_Box(
+                    new THREE.Mesh(geometry, material),
+                    false,
+                    false,
+                    false,
+                    undefined,
+                ),
+            );
         }
-        // "RenderTheWorld.sphereModel": "<sphere> radius[radius] widthSegments[w] heightSegments[h] material[material]",
-        // "RenderTheWorld.planeModel": "<plane> length[a] width[b] material[material]",
-        // "RenderTheWorld.objModel": "<OBJ model> OBJ file[objfile] MTL file[mtlfile]",
-        // "RenderTheWorld.gltfModel": "<GLTF model> GLTF file[gltffile]",
+        
         sphereModel({ radius, w, h, material }) {
+            material = Wrapper.unwrap(material);
+            if (material !== undefined) {
+                if (!material.ismaterial) {
+                    return "⚠️材质无效！";
+                }
+                material = material["model"];
+            }
+
             let geometry = new THREE.SphereGeometry(
                 Cast.toNumber(radius),
                 Cast.toNumber(w),
-                Cast.toNumber(h)
+                Cast.toNumber(h),
             );
 
-            return {
-                "model": new THREE.Mesh(geometry, material),
-            };
+            return new Wrapper(
+                new RTW_Model_Box(
+                    new THREE.Mesh(geometry, material),
+                    false,
+                    false,
+                    false,
+                    undefined,
+                ),
+            );
         }
 
         planeModel({ a, b, material }) {
+            material = Wrapper.unwrap(material);
+            if (material !== undefined) {
+                if (!material.ismaterial) {
+                    return "⚠️材质无效！";
+                }
+                material = material["model"];
+            }
+
             let geometry = new THREE.PlaneGeometry(
                 Cast.toNumber(a),
-                Cast.toNumber(b)
+                Cast.toNumber(b),
             );
 
-            return {
-                "model": new THREE.Mesh(geometry, material),
-            };
+            return new Wrapper(
+                new RTW_Model_Box(
+                    new THREE.Mesh(geometry, material),
+                    false,
+                    false,
+                    false,
+                    undefined,
+                ),
+            );
         }
 
         objModel({ objfile, mtlfile }) {
-            return {
-                "objfile": objfile,
-                "mtlfile": mtlfile,
-            };
+            return new Wrapper(
+                new RTW_Model_Box(
+                    {
+                        objfile: objfile,
+                        mtlfile: mtlfile,
+                    },
+                    false,
+                    true,
+                    false,
+                    undefined,
+                ),
+            );
         }
         _objModel(name, objfile, mtlfile, init_porject_time) {
             name = Cast.toString(name);
@@ -3324,19 +3598,21 @@ import {
                         this.objects[name] = root;
 
                         let r = this.runtime.startHatsWithParams(
-                            chen_RenderTheWorld_extensionId + "_objectLoadingCompleted",
+                            chen_RenderTheWorld_extensionId +
+                                "_objectLoadingCompleted",
                             {
                                 parameters: {
                                     name: name,
                                 },
                             },
                         );
-                        r && r.forEach(((e) => {
-                            this.runtime.sequencer.stepThread(e);
-                        }));
+                        r &&
+                            r.forEach((e) => {
+                                this.runtime.sequencer.stepThread(e);
+                            });
                         if (init_porject_time == this._init_porject_time) {
                             this.scene.add(this.objects[name]);
-                            this.render()
+                            this.render();
                         }
                     },
                 );
@@ -3344,9 +3620,17 @@ import {
         }
 
         gltfModel({ gltffile }) {
-            return {
-                "gltffile": gltffile,
-            };
+            return new Wrapper(
+                new RTW_Model_Box(
+                    {
+                        gltffile: gltffile,
+                    },
+                    false,
+                    false,
+                    true,
+                    undefined,
+                ),
+            );
         }
         _gltfModel(name, gltffile, init_porject_time) {
             name = Cast.toString(name);
@@ -3377,12 +3661,13 @@ import {
                         },
                     },
                 );
-                r && r.forEach(((e) => {
-                    this.runtime.sequencer.stepThread(e);
-                }));
+                r &&
+                    r.forEach((e) => {
+                        this.runtime.sequencer.stepThread(e);
+                    });
                 if (init_porject_time == this._init_porject_time) {
                     this.scene.add(this.objects[name]);
-                    this.render()
+                    this.render();
                 }
             });
         }
@@ -3405,7 +3690,7 @@ import {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-            let init_porject_time = this._init_porject_time;  // 解决快速点击多次绿旗，模型重复添加问题
+            let init_porject_time = this._init_porject_time; // 解决快速点击多次绿旗，模型重复添加问题
             // 名称
 
             name = Cast.toString(name);
@@ -3438,9 +3723,8 @@ import {
                 Cast.toNumber(z),
             );
 
-
             if (Cast.toString(YN) == "true") {
-                this.objects[name].castShadow
+                this.objects[name].castShadow;
                 this.objects[name].castShadow = true;
             }
 
@@ -3455,12 +3739,13 @@ import {
                     },
                 },
             );
-            r && r.forEach(((e) => {
-                this.runtime.sequencer.stepThread(e);
-            }));
+            r &&
+                r.forEach((e) => {
+                    this.runtime.sequencer.stepThread(e);
+                });
             if (init_porject_time == this._init_porject_time) {
                 this.scene.add(this.objects[name]);
-                this.render()
+                this.render();
             }
         }
 
@@ -3531,12 +3816,13 @@ import {
                     },
                 },
             );
-            r && r.forEach(((e) => {
-                this.runtime.sequencer.stepThread(e);
-            }));
+            r &&
+                r.forEach((e) => {
+                    this.runtime.sequencer.stepThread(e);
+                });
             if (init_porject_time == this._init_porject_time) {
                 this.scene.add(this.objects[name]);
-                this.render()
+                this.render();
             }
         }
 
@@ -3604,12 +3890,13 @@ import {
                     },
                 },
             );
-            r && r.forEach(((e) => {
-                this.runtime.sequencer.stepThread(e);
-            }));
+            r &&
+                r.forEach((e) => {
+                    this.runtime.sequencer.stepThread(e);
+                });
             if (init_porject_time == this._init_porject_time) {
                 this.scene.add(this.objects[name]);
-                this.render()
+                this.render();
             }
         }
 
@@ -3635,7 +3922,9 @@ import {
                 return;
             }
 
-            let _filelist = this.runtime.getGandiAssetsFileList().map((f) => f.fullName);
+            let _filelist = this.runtime
+                .getGandiAssetsFileList()
+                .map((f) => f.fullName);
             if (_filelist.indexOf(objfile) == -1) {
                 return "⚠️OBJ文件不存在！";
             }
@@ -3688,19 +3977,20 @@ import {
                         }
                         let r = this.runtime.startHatsWithParams(
                             chen_RenderTheWorld_extensionId +
-                            "_objectLoadingCompleted",
+                                "_objectLoadingCompleted",
                             {
                                 parameters: {
                                     name: name,
                                 },
                             },
                         );
-                        r && r.forEach(((e) => {
-                            this.runtime.sequencer.stepThread(e);
-                        }));
+                        r &&
+                            r.forEach((e) => {
+                                this.runtime.sequencer.stepThread(e);
+                            });
                         if (init_porject_time == this._init_porject_time) {
                             this.scene.add(this.objects[name]);
-                            this.render()
+                            this.render();
                         }
                     },
                 );
@@ -3729,7 +4019,9 @@ import {
                 return;
             }
 
-            let _filelist = this.runtime.getGandiAssetsFileList().map((f) => f.fullName);
+            let _filelist = this.runtime
+                .getGandiAssetsFileList()
+                .map((f) => f.fullName);
             if (_filelist.indexOf(gltffile) == -1) {
                 return "⚠️GLTF文件不存在！";
             }
@@ -3789,12 +4081,13 @@ import {
                         },
                     },
                 );
-                r && r.forEach(((e) => {
-                    this.runtime.sequencer.stepThread(e);
-                }));
+                r &&
+                    r.forEach((e) => {
+                        this.runtime.sequencer.stepThread(e);
+                    });
                 if (init_porject_time == this._init_porject_time) {
                     this.scene.add(this.objects[name]);
-                    this.render()
+                    this.render();
                 }
             });
         }
@@ -3816,7 +4109,7 @@ import {
             let animationNames = [Cast.toString(args.animationName)];
             let i = 1;
             while (args[`ANIMATIONMAME_${i}`]) {
-                animationNames.push(args[`ANIMATIONMAME_${i}`])
+                animationNames.push(args[`ANIMATIONMAME_${i}`]);
                 i++;
             }
 
@@ -3827,10 +4120,11 @@ import {
                         animationName,
                     );
                     if (cilp) {
-                        this.animations[name].action[animationName] = this.animations[name].mixer.clipAction(cilp);
+                        this.animations[name].action[animationName] =
+                            this.animations[name].mixer.clipAction(cilp);
                         this.animations[name].action[animationName].play();
                     }
-                })
+                });
             }
         }
 
@@ -3851,7 +4145,7 @@ import {
             let animationNames = [Cast.toString(args.animationName)];
             let i = 1;
             while (args[`ANIMATIONMAME_${i}`]) {
-                animationNames.push(args[`ANIMATIONMAME_${i}`])
+                animationNames.push(args[`ANIMATIONMAME_${i}`]);
                 i++;
             }
 
@@ -3860,7 +4154,7 @@ import {
                     if (animationName in this.animations[name].action) {
                         this.animations[name].action[animationName].stop();
                     }
-                })
+                });
             }
         }
 
@@ -3925,7 +4219,7 @@ import {
                 this.releaseDuplicates(args[`NAME_${i}`]);
                 i++;
             }
-            this.render()
+            this.render();
         }
 
         rotationObject({ name, x, y, z }) {
@@ -3943,7 +4237,7 @@ import {
 
                     THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
-                this.render()
+                this.render();
             } else {
                 return;
             }
@@ -3964,7 +4258,7 @@ import {
 
                     Cast.toNumber(z),
                 );
-                this.render()
+                this.render();
             } else {
                 return;
             }
@@ -3985,7 +4279,7 @@ import {
 
                     Cast.toNumber(z),
                 );
-                this.render()
+                this.render();
             } else {
                 return;
             }
@@ -4064,40 +4358,14 @@ import {
             }
         }
 
-        /**
-         * 创建或重置点光源
-         * [name] 颜色: [color] 光照强度: [intensity] 位置:x[x] y[y] z[z]
-         * @param {object} args
-         * @param {string} args.name
-         * @param {number} args.color
-         * @param {number} args.intensity
-         * @param {number} args.x
-         * @param {number} args.y
-         * @param {number} args.z
-         * @param {number} args.decay
-         * @param {string} args.YN
-         */
-
-        makePointLight({ name, color, intensity, x, y, z, decay, YN }) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-
-            name = Cast.toString(name);
-            // 创建点光源
-            if (name in this.lights) {
-                this._deleteObject(this.lights[name]);
-                this.lights[name].dispose();
-            }
-            this.lights[name] = new THREE.PointLight(
+        pointLight({ color, intensity, x, y, z, decay, YN }) {
+            let _point_light = new THREE.PointLight(
                 Cast.toNumber(color),
-
                 Cast.toNumber(intensity),
                 0,
-
                 Cast.toNumber(decay),
             ); //创建光源
-            this.lights[name].position.set(
+            _point_light.position.set(
                 Cast.toNumber(x),
 
                 Cast.toNumber(y),
@@ -4105,39 +4373,38 @@ import {
                 Cast.toNumber(z),
             ); //设置光源的位置
 
-            this.lights[name].shadow.bias = -0.00005;
+            _point_light.shadow.bias = -0.00005;
 
             if (Cast.toString(YN) == "true") {
-                this.lights[name].castShadow = true;
+                _point_light.castShadow = true;
             }
-            this.scene.add(this.lights[name]); //在场景中添加光源
-            this.render()
+            return new Wrapper(new RTW_Model_Box(_point_light, false, false, false, undefined));
         }
 
-        makeDirectionalLight({ name, color, intensity, x, y, z, x2, y2, z2, YN }) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-
-            name = Cast.toString(name);
-            // 创建点光源
-            if (name in this.lights) {
-                this._deleteObject(this.lights[name]);
-                this.lights[name].dispose();
-            }
-            this.lights[name] = new THREE.DirectionalLight(
+        directionalLight({
+            color,
+            intensity,
+            x,
+            y,
+            z,
+            x2,
+            y2,
+            z2,
+            YN,
+        }) {
+            let _directional_light = new THREE.DirectionalLight(
                 Cast.toNumber(color),
-                Cast.toNumber(intensity)
+                Cast.toNumber(intensity),
             ); //创建光源
 
-            this.lights[name].position.set(
+            _directional_light.position.set(
                 Cast.toNumber(x),
 
                 Cast.toNumber(y),
 
                 Cast.toNumber(z),
             ); //设置光源的位置
-            this.lights[name].target.position.set(
+            _directional_light.target.position.set(
                 Cast.toNumber(x),
 
                 Cast.toNumber(y),
@@ -4145,24 +4412,21 @@ import {
                 Cast.toNumber(z),
             ); //设置光源目标的位置
 
-            this.lights[name].shadow.bias = -0.00005;
+            _directional_light.shadow.bias = -0.00005;
             if (Cast.toString(YN) == "true") {
-                this.lights[name].castShadow = true;
+                _directional_light.castShadow = true;
             }
 
             // 设置平行光范围大一点。
-            this.lights[name].shadow.camera.left = -20;
-            this.lights[name].shadow.camera.right = 20;
-            this.lights[name].shadow.camera.top = 20;
-            this.lights[name].shadow.camera.bottom = -20;
-            this.lights[name].shadow.camera.near = 0.1;
-            this.lights[name].shadow.camera.far = 1000;
+            _directional_light.shadow.camera.left = -20;
+            _directional_light.shadow.camera.right = 20;
+            _directional_light.shadow.camera.top = 20;
+            _directional_light.shadow.camera.bottom = -20;
+            _directional_light.shadow.camera.near = 0.1;
+            _directional_light.shadow.camera.far = 1000;
 
-            this.scene.add(this.lights[name]); //在场景中添加光源
-            this.render()
+            return new Wrapper(new RTW_Model_Box(_directional_light, false, false, false, undefined));
         }
-
-
 
         /**
          * 设置平行光的阴影投射范围
@@ -4172,25 +4436,27 @@ import {
          * @param {number} args.right
          * @param {number} args.top
          * @param {number} args.bottom
-        */
+         */
         setDirectionalLightShawdowCamera({ name, left, right, top, bottom }) {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
 
             name = Cast.toString(name);
-            if (name in this.lights) {
-                if (this.lights[name].type === "DirectionalLight") {
+            if (name in this.objects) {
+                if (this.objects[name].type === "DirectionalLight") {
                     let _camera = new THREE.OrthographicCamera(
                         Cast.toNumber(left),
                         Cast.toNumber(right),
                         Cast.toNumber(top),
                         Cast.toNumber(bottom),
-                        this.lights[name].shadow.camera.near,
-                        this.lights[name].shadow.camera.far
-                    )
-                    _camera.zoom = this.lights[name].shadow.camera.zoom;
-                    this.lights[name].shadow.camera = _camera;
+                        this.objects[name].shadow.camera.near,
+                        this.objects[name].shadow.camera.far,
+                    );
+                    _camera.zoom = this.objects[name].shadow.camera.zoom;
+                    this.objects[name].shadow.camera = _camera;
+                } else {
+                    return "⚠️'"+name+"'不是平行光！";
                 }
             }
         }
@@ -4206,69 +4472,16 @@ import {
             if (!this.tc) {
                 return "⚠️显示器未初始化！";
             }
-
+            
             name = Cast.toString(name);
-            if (name in this.lights) {
-                this.lights[name].shadow.mapSize.width = Cast.toNumber(xsize);
-                this.lights[name].shadow.mapSize.height = Cast.toNumber(ysize);
-            }
-        }
-
-        moveLight({ name, x, y, z }) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-
-            name = Cast.toString(name);
-            if (name in this.lights) {
-                // 设置坐标
-                this.lights[name].position.set(
-                    Cast.toNumber(x),
-
-                    Cast.toNumber(y),
-
-                    Cast.toNumber(z),
-                );
-                this.render()
-            } else {
-                return;
-            }
-        }
-
-        getLightPos({ name, xyz }) {
-            name = Cast.toString(name);
-            if (name in this.lights) {
-                switch (Cast.toString(xyz)) {
-                    case "x":
-                        return this.lights[name].position.x;
-                    case "y":
-                        return this.lights[name].position.y;
-                    case "z":
-                        return this.lights[name].position.z;
+            if (name in this.objects) {
+                if (this.objects[name].isLight) {
+                    this.objects[name].shadow.mapSize.width = Cast.toNumber(xsize);
+                    this.objects[name].shadow.mapSize.height = Cast.toNumber(ysize);
+                } else {
+                    return "⚠️'"+name+"'不是光源！";
                 }
-            } else {
-                return;
             }
-        }
-
-        deleteLight(args) {
-            if (!this.tc) {
-                return "⚠️显示器未初始化！";
-            }
-
-            let name = Cast.toString(args.name), i = 1;
-
-            if (name in this.lights) {
-                this._deleteObject(this.lights[name]);
-            }
-
-            while (args[`NAME_${i}`]) {
-                if (args[`NAME_${i}`] in this.lights) {
-                    this._deleteObject(this.lights[args[`NAME_${i}`]]);
-                }
-                i++;
-            }
-            this.render()
         }
 
         /**
@@ -4286,7 +4499,7 @@ import {
             this.ambient_light.color = new THREE.Color(Cast.toNumber(color));
 
             this.ambient_light.intensity = Cast.toNumber(intensity);
-            this.render()
+            this.render();
         }
 
         /**
@@ -4310,7 +4523,7 @@ import {
             );
 
             this.hemisphere_light.intensity = Cast.toNumber(intensity);
-            this.render()
+            this.render();
         }
 
         /**
@@ -4333,7 +4546,7 @@ import {
 
                     Cast.toNumber(z),
                 );
-                this.render()
+                this.render();
             }
         }
 
@@ -4357,7 +4570,7 @@ import {
 
                     THREE.MathUtils.degToRad(Cast.toNumber(z)),
                 );
-                this.render()
+                this.render();
             }
         }
 
@@ -4470,7 +4683,7 @@ import {
             this.controls.update();
         }
 
-        mouseCanControlCamera({ }) {
+        mouseCanControlCamera({}) {
             if (!this.tc) {
                 return false;
             }
@@ -4528,7 +4741,7 @@ import {
 
                 Cast.toNumber(far),
             );
-            this.render()
+            this.render();
         }
 
         /**
@@ -4540,7 +4753,7 @@ import {
                 return "⚠️显示器未初始化！";
             }
             this.scene.fog = null;
-            this.render()
+            this.render();
         }
 
         /**
@@ -4564,14 +4777,15 @@ import {
     runtime._convertBlockForScratchBlocks = function (blockInfo, categoryInfo) {
         const res = cbfsb(blockInfo, categoryInfo);
         if (blockInfo.outputShape) {
-            if (!res.json.outputShape) res.json.outputShape = blockInfo.outputShape;
+            if (!res.json.outputShape)
+                res.json.outputShape = blockInfo.outputShape;
         }
         if (blockInfo.output) {
             if (!res.json.output) res.json.output = blockInfo.output;
         }
         if (!res.json.branchCount) res.json.branchCount = blockInfo.branchCount;
         return res;
-    }
+    };
 
     extensions.register(new RenderTheWorld(runtime));
     window.tempExt = {
@@ -4595,8 +4809,7 @@ import {
                 },
                 {
                     collaborator: "Fath11@Cocrea",
-                    collaboratorURL:
-                        "https://cocrea.world/@Fath11",
+                    collaboratorURL: "https://cocrea.world/@Fath11",
                 },
             ],
         },
