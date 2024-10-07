@@ -14,6 +14,12 @@ import {
 
 (function (Scratch) {
     "use strict";
+    const { logSystem } = Scratch.vm.runtime;
+    const logError = (...args) => {
+        logSystem?.error(...args);
+        console.error(...args);
+    };
+
     function addRTWStyle(newStyle) {
         let _RTWStyle = !(window.RTWStyle);
         window.RTWStyle = document.getElementById('RTWStyle');
@@ -911,6 +917,7 @@ import {
             "RenderTheWorld.objModel":
                 "<OBJ模型> OBJ文件[objfile] MTL文件[mtlfile]",
             "RenderTheWorld.gltfModel": "<GLTF模型> GLTF文件[gltffile]",
+            "RenderTheWorld.groupModel": "<组> ",
 
             "RenderTheWorld.importModel":
                 "导入或重置: 名称[name] 对象[model]",
@@ -1021,6 +1028,8 @@ import {
                 "创建一个点光源，返回一个模型对象，可直接在“导入或重置”积木中使用",
             "RenderTheWorld.directionalLight.tooltip":
                 "创建一个平行光，返回一个模型对象，可直接在“导入或重置”积木中使用",
+            "RenderTheWorld.groupModel.tooltip":
+                "创建一个对象组，返回一个组对象，可直接在“导入或重置”积木中使用",
 
             "RenderTheWorld.importModel.tooltip": "导入或重置对象",
             "RenderTheWorld.shadowSettings.tooltip": "设置对象的阴影设置",
@@ -1132,6 +1141,7 @@ import {
             "RenderTheWorld.objModel":
                 "<OBJ model> OBJ file[objfile] MTL file[mtlfile]",
             "RenderTheWorld.gltfModel": "<GLTF model> GLTF file[gltffile]",
+            "RenderTheWorld.groupModel": "<group> ",
 
             "RenderTheWorld.importModel":
                 "reset or make: name[name] object[model]",
@@ -1247,6 +1257,8 @@ import {
                 'Create a pointLight and return a model object, which can be directly used in the "reset or make" building block',
             "RenderTheWorld.directionalLight.tooltip":
                 'Create a directionalLight and return a model object, which can be directly used in the "reset or make" building block',
+            "RenderTheWorld.groupModel.tooltip":
+                'Create a group and return a group object, which can be directly used in the "reset or make" building block',
 
             "RenderTheWorld.importModel.tooltip": "Import or reset objects",
             "RenderTheWorld.shadowSettings.tooltip": "Set shadow settings for objects",
@@ -1330,6 +1342,10 @@ import {
                 html.innerText = `gltffile: "${this.model.gltffile}"`;
             } else {
                 html.innerText = `model: "${this.model["type"] ?? String(this.model)}"`;
+            }
+            if (this.model instanceof THREE.Group) {
+                console.log(this.model);
+                html.innerText += ` ${JSON.stringify(this.model.children.map((x) => x.type))}`;
             }
             return html;
         }
@@ -1551,13 +1567,14 @@ import {
             }
 
             // 修复ccw_hat_parameter的颜色问题
+            this._RTW_hat_parameters = new Set();
             this.objectLoadingCompletedUpdate = () => {
-                console.log(this.Blockly);
                 this.Blockly.getMainWorkspace().getAllBlocks().filter((block) => block.type === "ccw_hat_parameter").forEach((hat_parameter) => {
                     if (hat_parameter.svgGroup_.getElementsByTagName("text")[0].textContent === "name") {  // 这里是判断参数的名称，防止误判
-                        let flag = false;
+                        let flag = hat_parameter["is_RTW_hat_parameter"]==true || this._RTW_hat_parameters.has(hat_parameter.id) ? true : false;
                         let parentBlock_ = hat_parameter.parentBlock_;
-                        while (parentBlock_!==null) {
+                        while (!flag && parentBlock_!==null) {
+                            this._RTW_hat_parameters.add(hat_parameter.id);
                             if (parentBlock_.type === chen_RenderTheWorld_extensionId+"_objectLoadingCompleted") {  // 如果这个ccw_hat_parameter的最高层是objectLoadingCompleted积木，说明他是objectLoadingCompleted的ccw_hat_parameter
                                 flag = true;
                                 break;
@@ -1565,15 +1582,15 @@ import {
                             parentBlock_ = parentBlock_.parentBlock_;
                         }
                         if (flag) {
-                            console.log(hat_parameter);
                             hat_parameter["is_RTW_hat_parameter"] = true;
                             hat_parameter.colour_ = hat_parameter.svgPath_.style.fill = "#121C3D";
                             hat_parameter.colourTertiary_ = hat_parameter.svgPath_.style.stroke="#4A76FF";
-                        } else if (hat_parameter["is_RTW_hat_parameter"]===true) {  // 移除时恢复
-                            hat_parameter["is_RTW_hat_parameter"] = undefined;
-                            hat_parameter.colour_ = hat_parameter.svgPath_.style.fill = "#FF6680";
-                            hat_parameter.colourTertiary_ = hat_parameter.svgPath_.style.stroke="#FF3355";
                         }
+                        this._RTW_hat_parameters.forEach((id) => {
+                            if (this.Blockly.getMainWorkspace().getBlockById(id) === null) {
+                                this._RTW_hat_parameters.delete(id);
+                            }
+                        });
                     }
                 });
             }
@@ -1994,6 +2011,25 @@ import {
                             type: null,
                             defaultValue: "",
                         },
+                    },
+                    output: "Reporter",
+                    outputShape: 3,
+                    branchCount: 0,
+                },
+                {
+                    opcode: "groupModel",
+                    blockType: BlockType.OUTPUT,
+                    text: this.formatMessage("RenderTheWorld.groupModel"),
+                    arguments: {},
+                    expandableBlock: {
+                        expandableArgs: {
+                            MODEL: ["string", "MODEL"],
+                            TEXT: ["text", ", ", 0],
+                        },
+                        defaultIndex: 1,
+                        defaultText: this.formatMessage("RenderTheWorld.groupModel"),
+                        textBegin: "[",
+                        textEnd: "]",
                     },
                     output: "Reporter",
                     outputShape: 3,
@@ -3209,6 +3245,7 @@ import {
             if (typeof util.stackFrame._inlineLastReturn !== "undefined") {
                 // 阶段3：我们有一个返回值，我们
                 // 可以返回值，返回它！
+                util.stackFrame._inlineLastReturn = undefined;
                 return util.stackFrame._inlineReturn;
             } else if (typeof util.stackFrame._inlineReturn !== "undefined") {
                 //第二阶段：我们有一个返回值，但我们将跳过
@@ -3486,6 +3523,34 @@ import {
                     });
                 }
             }
+        }
+
+        groupModel(args) {
+            let _group = new THREE.Group(), cnt = 1;
+            while (args[`MODEL_${cnt}`]) {
+                let _model = Wrapper.unwrap(args[`MODEL_${cnt}`]);
+                if (_model instanceof RTW_Model_Box && _model.model.isObject3D) {
+                    _model = _model.model;
+                } else if (typeof _model === 'string') {
+                    if (!(_model in this.objects)) {cnt++;continue};
+                    _model = this.objects[_model];
+                    
+                } else {cnt++;continue};
+                _group.children.push(_model);
+                
+                cnt++; 
+            }
+            // cnt--;  // 模型数量
+            
+            return new Wrapper(
+                new RTW_Model_Box(
+                    _group,
+                    false,
+                    false,
+                    false,
+                    undefined,
+                ),
+            );
         }
 
         cubeModel({ a, b, h, material }) {
@@ -4798,12 +4863,12 @@ import {
             insetIconURL: chen_RenderTheWorld_icon,
             featured: true,
             disabled: false,
-            collaborator: "陈思翰 @ CCW",
+            collaborator: "xiaochen004hao @ CCW",
             collaboratorURL:
                 "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
             collaboratorList: [
                 {
-                    collaborator: "陈思翰 @ CCW",
+                    collaborator: "xiaochen004hao @ CCW",
                     collaboratorURL:
                         "https://www.ccw.site/student/643bb84051bc32279f0c3fa0",
                 },
